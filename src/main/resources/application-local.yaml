@@ -1,0 +1,41 @@
+spring:
+  r2dbc: # (1)
+    url: r2dbc:pool:postgresql://localhost:5432/test
+    username: test
+    password: test
+
+  application:
+    name: main
+
+
+server:
+  port: 8081
+
+springdoc:
+  swagger-ui:
+    path : /swagger
+    tags-sorter : alpha
+    operations-sorter : alpha
+  api-docs.path : /api-docs
+  default-consumes-media-type : application/json;charset=UTF-8
+  default-produces-media-type : application/json;charset=UTF-8
+
+
+social:
+  kakao:
+    url: "https://kapi.kakao.com/v2/user/me"
+
+security:
+  swagger:
+    user: admin
+    password: test
+
+jwt:
+  secret: "snapfitjwttactbefefefefeftateotbtotbse"
+  access-expire: 100
+  refresh-expire: 1000
+
+
+logging:
+  level:
+    org.springframework.r2dbc.core: debug

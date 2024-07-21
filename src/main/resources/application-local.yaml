@@ -25,6 +25,11 @@ social:
   kakao:
     url: "https://kapi.kakao.com/v2/user/me"
 
+security:
+  swagger:
+    user: admin
+    password: test
+
 jwt:
   secret: "snapfitjwttttttefefefefefttttotototest"
   access-expire: 100

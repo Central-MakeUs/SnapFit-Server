@@ -1,8 +1,8 @@
 spring:
   r2dbc: # (1)
-    url: r2dbc:pool:postgresql://localhost:5432/test
-    username: test
-    password: test
+    url: ${gcp.cloudsql.url}
+    username: ${gcp.cloudsql.username}
+    password: ${gcp.cloudsql.password}
 
   application:
     name: main
@@ -27,15 +27,10 @@ social:
 
 security:
   swagger:
-    user: admin
-    password: test
+    user: ${swagger.user}
+    password: ${swagger.password}
 
 jwt:
-  secret: "snapfitjwttactbefefefefeftateotbtotbse"
+  secret: ${jwt.secret}
   access-expire: 100
   refresh-expire: 1000
-
-
-logging:
-  level:
-    org.springframework.r2dbc.core: debug

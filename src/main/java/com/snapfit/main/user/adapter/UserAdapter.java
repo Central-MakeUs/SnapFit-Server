@@ -4,6 +4,7 @@ import com.snapfit.main.common.annoataion.Adapter;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
 import com.snapfit.main.security.dto.RequestTokenInfo;
+import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.application.UserService;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
@@ -24,6 +25,11 @@ public class UserAdapter {
 
         return userService.getSnapfitUser(socialAccessToken, socialType)
                 .map(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
+    }
+
+    public Mono<SnapfitUserDto> getSnapfitUser(long userId) {
+        return userService.getSnapfitUser(userId)
+                .map(SnapfitUserDto::new);
     }
 
 

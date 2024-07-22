@@ -40,9 +40,14 @@ public class SnapfitUser {
 
 //    private String loginDevice;
 
-    private boolean is_marketing_receive;
-    private boolean is_photographer;
-    private boolean is_noti;
+    @Column("is_marketing_receive")
+    private boolean isMarketingReceive;
+
+    @Column("is_photographer")
+    private boolean isPhotographer;
+
+    @Column("is_noti")
+    private boolean isNoti;
 
 
 }

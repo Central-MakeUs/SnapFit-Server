@@ -2,6 +2,7 @@ package com.snapfit.main.user.presentation;
 
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.user.adapter.UserAdapter;
+import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,10 +35,10 @@ public class LoginController {
         return userAdapter.login(JwtToken.parseAccessTokenFromHeader(accessToken), SocialType.findBySocial(socialType)).map(ResponseEntity::ok);
     }
 
-    @GetMapping("/user")
-    Mono<ResponseEntity<String>> info(Authentication authentication){
-        Long userId = Long.valueOf(authentication.getName());
-        return Mono.just(ResponseEntity.ok("Hello"));
+    @GetMapping("/snapfit/user")
+    Mono<ResponseEntity<SnapfitUserDto>> info(Authentication authentication){
+        long userId = Long.parseLong(authentication.getName());
+        return userAdapter.getSnapfitUser(userId).map(ResponseEntity::ok);
     }
 
 }

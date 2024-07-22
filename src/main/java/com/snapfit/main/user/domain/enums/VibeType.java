@@ -1,5 +1,6 @@
 package com.snapfit.main.user.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import lombok.Getter;
@@ -12,6 +13,7 @@ public enum VibeType {
 
     TEST("테스트");
 
+    @JsonValue
     private final String vibe;
 
     private static final Map<String, VibeType> VIBE_TYPE_MAP = new HashMap<>();

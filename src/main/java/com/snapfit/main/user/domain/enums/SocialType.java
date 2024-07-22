@@ -1,5 +1,6 @@
 package com.snapfit.main.user.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
 import lombok.Getter;
@@ -12,6 +13,7 @@ public enum SocialType {
     APPLE("apple")
     ;
 
+    @JsonValue
     private final String socialName;
 
     SocialType(String socialName) {

@@ -1,5 +1,6 @@
 package com.snapfit.main.user.domain.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
 import lombok.Getter;
@@ -11,6 +12,7 @@ public enum DeviceType {
     APPLE("apple"),
     ANDROID("android");
 
+    @JsonValue
     private final String device;
 
     DeviceType(String device) {

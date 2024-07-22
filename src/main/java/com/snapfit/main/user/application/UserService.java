@@ -5,6 +5,7 @@ import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
 import com.snapfit.main.security.dto.RequestTokenInfo;
+import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.domain.*;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
@@ -59,6 +60,24 @@ public class UserService {
                 // 4. 토큰 반환
                 .flatMap(snapfitUser -> Mono.just(jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser))));
     }
+
+    @Transactional
+    public Mono<SnapfitUser> getSnapfitUser(String socialToken, SocialType socialType) {
+        if (socialLoginMap.get(socialType) ==  null) {
+            return Mono.error(new ErrorResponse(CommonErrorCode.INVALID_REQUEST));
+        }
+
+        return socialLoginMap.get(socialType).getSocialInfo(socialToken)
+                .flatMap(socialInfo -> snapfitUserRepository.findBySocialIdAndSocialType(socialInfo.getSocialId(), socialType))
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));
+    }
+
+    @Transactional
+    public Mono<SnapfitUser> getSnapfitUser(long userId) {
+        return snapfitUserRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));
+    }
+
 
 
     private Mono<Void> isExistUser(SocialType socialType, String socialId, String nickName) {

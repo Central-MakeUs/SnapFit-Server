@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -58,6 +59,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
+            System.out.println(token);
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
@@ -87,6 +89,7 @@ public class JwtTokenProvider {
     private String createToken(RequestTokenInfo requestTokenInfo, long expireTime) {
         Claims claims = Jwts.claims();
         claims.put("userId", requestTokenInfo.getUserId());
+        claims.put("role", List.of("ROLE_USER"));
         //TODO 유저 권한 등 더 추가로 넣어야 함.
 
         ZonedDateTime now = ZonedDateTime.now();

@@ -5,7 +5,6 @@ import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
 import com.snapfit.main.security.dto.RequestTokenInfo;
-import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.domain.*;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
@@ -46,8 +45,8 @@ public class UserService {
                             .socialType(requestSocialType)
                             .socialId(socialInfo.getSocialId())
                             .vibes(signUpDto.getVibes())
-                            .is_noti(true)
-                            .is_photographer(false)
+                            .isNoti(true)
+                            .isPhotographer(false)
                             .nickName(signUpDto.getNickName())
                             .loginTime(LocalDateTime.now())
                             .build();
@@ -55,7 +54,7 @@ public class UserService {
                     return snapfitUserRepository.save(user);
                 })
                 //3. device 정보 db에 저장
-                .flatMap(user -> upsertDevice(user, signUpDto.getDevice_type(), signUpDto.getFcm_token())
+                .flatMap(user -> upsertDevice(user, signUpDto.getDeviceType(), signUpDto.getDeviceToken())
                         .then(Mono.just(user)))
                 // 4. 토큰 반환
                 .flatMap(snapfitUser -> Mono.just(jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser))));

@@ -5,6 +5,7 @@ import com.snapfit.main.user.domain.enums.VibeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -17,6 +18,7 @@ import java.util.List;
 @Builder
 @Getter
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class SnapfitUser {
     @Id
     //TODO r2dbc는 generatedValue 지원하지 않음. table 만들 때 id bigserial NOT NULL 필요!

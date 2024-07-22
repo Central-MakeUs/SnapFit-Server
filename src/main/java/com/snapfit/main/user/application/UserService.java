@@ -60,6 +60,18 @@ public class UserService {
                 .flatMap(snapfitUser -> Mono.just(jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser))));
     }
 
+    @Transactional
+    public Mono<SnapfitUser> getSnapfitUser(String socialToken, SocialType socialType) {
+        if (socialLoginMap.get(socialType) ==  null) {
+            return Mono.error(new ErrorResponse(CommonErrorCode.INVALID_REQUEST));
+        }
+
+        return socialLoginMap.get(socialType).getSocialInfo(socialToken)
+                .flatMap(socialInfo -> snapfitUserRepository.findBySocialIdAndSocialType(socialInfo.getSocialId(), socialType))
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));
+    }
+
+
 
     private Mono<Void> isExistUser(SocialType socialType, String socialId, String nickName) {
         return snapfitUserRepository.existsByNickName(nickName)

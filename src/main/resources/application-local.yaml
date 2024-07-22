@@ -3,6 +3,8 @@ spring:
     url: r2dbc:pool:postgresql://localhost:5432/test
     username: test
     password: test
+  security:
+    debug: true
 
   application:
     name: main
@@ -29,13 +31,17 @@ security:
   swagger:
     user: admin
     password: test
+  bearerAuth: []
 
 jwt:
   secret: "snapfitjwttactbefefefefeftateotbtotbse"
-  access-expire: 100
+  access-expire: 1000
   refresh-expire: 1000
 
 
 logging:
   level:
     org.springframework.r2dbc.core: debug
+    org:
+      springframework:
+        security: DEBUG

@@ -29,6 +29,7 @@ security:
   swagger:
     user: ${swagger.user}
     password: ${swagger.password}
+  bearerAuth: []
 
 jwt:
   secret: ${jwt.secret}

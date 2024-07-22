@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.domain.enums.VibeType;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
@@ -13,9 +12,9 @@ import java.util.List;
 public class SignUpDto {
     private SocialType social;
     private List<VibeType> vibes;
-    private DeviceType device_type;
-    private String fcm_token;
-    private boolean is_marketing;
+    private DeviceType deviceType;
+    private String deviceToken;
+    private boolean isMarketing;
     private String nickName;
 
     @JsonCreator

@@ -3,6 +3,7 @@ package com.snapfit.main.user.adapter;
 import com.snapfit.main.common.annoataion.Adapter;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
+import com.snapfit.main.security.RefreshTokenInfo;
 import com.snapfit.main.security.dto.RequestTokenInfo;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.application.UserService;
@@ -30,6 +31,10 @@ public class UserAdapter {
     public Mono<SnapfitUserDto> getSnapfitUser(long userId) {
         return userService.getSnapfitUser(userId)
                 .map(SnapfitUserDto::new);
+    }
+
+    public Mono<JwtToken> refreshToken(String refreshToken) {
+        return jwtTokenProvider.refreshToken(refreshToken);
     }
 
 

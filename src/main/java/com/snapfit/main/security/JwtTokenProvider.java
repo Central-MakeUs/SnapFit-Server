@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -20,14 +21,17 @@ import java.util.List;
 public class JwtTokenProvider {
 
     private final Key key;
+
+    private final RefreshTokenRepository refreshTokenRepository;
     private final long accessTokenExpireTime;
     private final long refreshTokenExpireTime;
 
     public JwtTokenProvider(
-            @Value("${jwt.secret}") String key,
+            @Value("${jwt.secret}") String key, RefreshTokenRepository refreshTokenRepository,
             @Value("${jwt.access-expire}") long accessTokenExpireTime,
             @Value("${jwt.refresh-expire}") long refreshTokenExpireTime) {
         this.key = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+        this.refreshTokenRepository = refreshTokenRepository;
         this.accessTokenExpireTime = accessTokenExpireTime;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
@@ -37,24 +41,22 @@ public class JwtTokenProvider {
         String accessToken = createToken(requestTokenInfo, accessTokenExpireTime);
         String refreshToken = createToken(requestTokenInfo, refreshTokenExpireTime);
 
+        saveRefreshToken(requestTokenInfo, refreshToken);
+
         return JwtToken.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
-    public JwtToken refreshToken(JwtToken jwtToken) {
-        String accessToken = jwtToken.getAccessToken();
-        String refreshToken = jwtToken.getRefreshToken();
+    public Mono<JwtToken> refreshToken(String refreshToken) {
 
-        RequestTokenInfo accessTokenInfo = new RequestTokenInfo(getUserId(accessToken));
-        RequestTokenInfo refreshTokenInfo = new RequestTokenInfo(getUserId(refreshToken));
-
-        if (accessTokenInfo.equals(refreshTokenInfo)) {
-            return createToken(accessTokenInfo);
-        }
-
-        throw new ErrorResponse(CommonErrorCode.INVALID_AUTH);
+        return Mono.just(validateToken(refreshToken))
+                .filter(valid -> valid)
+                .flatMap(valid -> refreshTokenRepository.findByRefreshToken(refreshToken))
+                .filter(refreshTokenInfo -> !refreshTokenInfo.isLogout())
+                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_AUTH)))
+                .map(refreshTokenInfo -> createToken(new RequestTokenInfo(refreshTokenInfo.getUserId())));
     }
 
     public boolean validateToken(String token) {
@@ -103,5 +105,13 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    private void saveRefreshToken(RequestTokenInfo requestTokenInfo, String refreshToken) {
+        refreshTokenRepository.save(RefreshTokenInfo.builder()
+                        .isLogout(false)
+                        .userId(requestTokenInfo.getUserId())
+                        .refreshToken(refreshToken)
+                .build())
+                .subscribe();
+    }
 
 }

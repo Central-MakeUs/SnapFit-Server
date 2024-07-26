@@ -36,7 +36,7 @@ security:
 jwt:
   secret: "snapfitjwttactbefefefefeftateotbtotbse"
   access-expire: 1000
-  refresh-expire: 1000
+  refresh-expire: 10000
 
 
 logging:

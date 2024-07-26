@@ -3,12 +3,8 @@ package com.snapfit.main.user.adapter.dto;
 import com.snapfit.main.user.domain.SnapfitUser;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.domain.enums.VibeType;
-import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.relational.core.mapping.Column;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -25,6 +21,8 @@ public class SnapfitUserDto {
     private final boolean is_photographer;
     private final boolean is_noti;
 
+    private final String profile;
+
     public SnapfitUserDto(SnapfitUser snapfitUser) {
         this.id = snapfitUser.getId();
         this.nickName = snapfitUser.getNickName();
@@ -36,5 +34,6 @@ public class SnapfitUserDto {
         this.is_marketing_receive = snapfitUser.isMarketingReceive();
         this.is_photographer = snapfitUser.isPhotographer();
         this.is_noti = snapfitUser.isNoti();
+        this.profile = snapfitUser.getProfilePath();
     }
 }

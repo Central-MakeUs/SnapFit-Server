@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 public enum CommonErrorCode implements ErrorCode {
 
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, 1, "올바르지 않은 요청입니다."),
-    INVALID_AUTH(HttpStatus.UNAUTHORIZED, 2, "권한이 없습니다.")
+    INVALID_AUTH(HttpStatus.UNAUTHORIZED, 2, "권한이 없습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED,3, "토큰이 만료되었거나, 올바르지 않습니다.")
     ;
 
     private final HttpStatus httpStatus;

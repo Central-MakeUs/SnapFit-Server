@@ -11,7 +11,15 @@ import java.util.Map;
 @Getter
 public enum VibeType {
 
-    TEST("테스트");
+    //TODO 나중에 db에 설정할 수 있도록 수정.
+    LOVELY("러블리"),
+    CHIC("시크"),
+    KITSCH("키치"),
+    CALM("차분함"),
+    TEEN("하이틴"),
+    VINTAGE("빈티지"),
+    DREAMY("몽환적"),
+    BRIGHT("밝은");
 
     @JsonValue
     private final String vibe;

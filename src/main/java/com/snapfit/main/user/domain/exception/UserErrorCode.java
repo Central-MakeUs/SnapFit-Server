@@ -10,6 +10,8 @@ public enum UserErrorCode implements ErrorCode {
     NOT_EXIST_USER(HttpStatus.UNAUTHORIZED, 2, "유저가 존재하지 않습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, 3, "올바르지 않은 요청입니다."),
     EXIST_USER(HttpStatus.UNAUTHORIZED, 4, "유저가 존재합니다."),
+    LEAVE_USER(HttpStatus.BAD_REQUEST, 5, "탈퇴한 유저입니다."),
+
     ;
 
 

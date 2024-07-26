@@ -49,5 +49,19 @@ public class SnapfitUser {
     @Column("is_noti")
     private boolean isNoti;
 
+    @Column("is_valid")
+    private boolean isValid;
+
+    @Column("profile")
+    private String profilePath;
+
+
+    public void updateLoginTime() {
+        loginTime = LocalDateTime.now();
+    }
+
+    public void leaveSnapfit() {
+        isValid = false;
+    }
 
 }

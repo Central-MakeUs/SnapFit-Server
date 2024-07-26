@@ -6,6 +6,7 @@ import com.snapfit.main.user.adapter.UserAdapter;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
+import com.snapfit.main.user.presentation.dto.RequestRefreshToken;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,12 +24,12 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
 public class LoginController {
     private final UserAdapter userAdapter;
 
     @PostMapping("/snapfit/signUp")
-    @Operation(summary = "소셜 회원가입", description = "소셜 토큰과 소셜 타입을 통해 회원가입을 할 수 있다.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "소셜 회원가입", description = "소셜 토큰과 소셜 타입을 통해 회원가입을 할 수 있다. 헤더에는 소셜 access token을 넣어야 한다.")
     Mono<ResponseEntity<JwtToken>> signUp(
             @Parameter(hidden = true) @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid SignUpDto signUpDto) {
@@ -37,7 +38,8 @@ public class LoginController {
     }
 
     @GetMapping("/snapfit/login")
-    @Operation(summary = "소셜 로그인", description = "소셜 토큰과 소셜 타입을 통해 로그인을 할 수 있다.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "소셜 로그인", description = "소셜 토큰과 소셜 타입을 통해 로그인을 할 수 있다. 헤더에는 소셜 access token을 넣어야 한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공", content = {@Content(schema = @Schema(implementation = JwtToken.class))}),
     })
@@ -47,10 +49,16 @@ public class LoginController {
         return userAdapter.login(JwtToken.parseAccessTokenFromHeader(accessToken), socialType).map(ResponseEntity::ok);
     }
 
-    @GetMapping("/snapfit/user")
-    Mono<ResponseEntity<SnapfitUserDto>> info(Authentication authentication){
-        long userId = Long.parseLong(authentication.getName());
-        return userAdapter.getSnapfitUser(userId).map(ResponseEntity::ok);
+    @GetMapping("/refresh/token")
+    Mono<ResponseEntity<JwtToken>> refreshToken(@RequestParam("refreshToken") String refreshToken) {
+        return userAdapter.refreshToken(refreshToken).map(ResponseEntity::ok);
+    }
+
+    @PostMapping("/snafit/logout")
+    @SecurityRequirement(name = "Bearer Authentication")
+    Mono<ResponseEntity<Void>> logOut(Authentication authentication, @RequestParam("refreshToken") String refreshToken) {
+
+        return userAdapter.logOut(Long.valueOf(authentication.getName()), refreshToken).map(ResponseEntity::ok);
     }
 
 }

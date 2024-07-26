@@ -110,6 +110,15 @@ public class UserService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public Mono<Void> assertValidUser(long userId) {
+        return snapfitUserRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)))
+                .filter(SnapfitUser::isValid)
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.LEAVE_USER)))
+                .then();
+    }
+
 
 
     private Mono<Void> isExistUser(SocialType socialType, String socialId, String nickName) {

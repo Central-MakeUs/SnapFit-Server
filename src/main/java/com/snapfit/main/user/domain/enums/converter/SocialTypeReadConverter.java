@@ -8,7 +8,6 @@ import org.springframework.data.convert.ReadingConverter;
 public class SocialTypeReadConverter implements Converter<String, SocialType> {
     @Override
     public SocialType convert(String source) {
-        System.out.println(source);
         return SocialType.findBySocial(source);
     }
 

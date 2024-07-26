@@ -3,10 +3,12 @@ package com.snapfit.main.user.presentation;
 import com.snapfit.main.user.adapter.UserAdapter;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.domain.enums.VibeType;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -33,6 +35,14 @@ public class UserController {
     Mono<ResponseEntity<List<String>>> vibes() {
         return Mono.just(VibeType.values())
                 .map(vibeTypes -> Arrays.stream(vibeTypes).map(VibeType::getVibe).toList())
+                .map(ResponseEntity::ok);
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "탈퇴", description = "회원 탈퇴 기능.")
+    @DeleteMapping("/user")
+    Mono<ResponseEntity<Void>> leaveSnapfit(Authentication authentication) {
+        return userAdapter.leaveSnapfit(Long.valueOf(authentication.getName()))
                 .map(ResponseEntity::ok);
     }
 

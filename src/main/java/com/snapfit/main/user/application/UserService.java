@@ -12,6 +12,7 @@ import com.snapfit.main.user.domain.exception.UserErrorCode;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -49,6 +50,8 @@ public class UserService {
                             .isPhotographer(false)
                             .nickName(signUpDto.getNickName())
                             .loginTime(LocalDateTime.now())
+                            .isValid(true)
+                            .profilePath(null)
                             .build();
 
                     return snapfitUserRepository.save(user);
@@ -68,13 +71,43 @@ public class UserService {
 
         return socialLoginMap.get(socialType).getSocialInfo(socialToken)
                 .flatMap(socialInfo -> snapfitUserRepository.findBySocialIdAndSocialType(socialInfo.getSocialId(), socialType))
-                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)))
+                .filter(SnapfitUser::isValid)
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.LEAVE_USER)));
+    }
+
+    @Transactional
+    public Mono<SnapfitUser> login(String socialToken, SocialType socialType) {
+        if (socialLoginMap.get(socialType) ==  null) {
+            return Mono.error(new ErrorResponse(CommonErrorCode.INVALID_REQUEST));
+        }
+
+        return getSnapfitUser(socialToken, socialType)
+                .flatMap(this::updateLoginTime);
+    }
+
+    private Mono<SnapfitUser> updateLoginTime(SnapfitUser snapfitUser) {
+        return Mono.just(snapfitUser)
+                .flatMap(user -> {
+                    user.updateLoginTime();
+                    return snapfitUserRepository.save(user);
+                });
     }
 
     @Transactional
     public Mono<SnapfitUser> getSnapfitUser(long userId) {
         return snapfitUserRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));
+    }
+
+    @Transactional
+    public Mono<Void> leaveSnapfit(long userId) {
+        return snapfitUserRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)))
+                .flatMap(snapfitUser -> {
+                    snapfitUser.leaveSnapfit();
+                    return snapfitUserRepository.save(snapfitUser).then(Mono.empty());
+                });
     }
 
 
@@ -95,5 +128,4 @@ public class UserService {
                         .build()))
                 .flatMap(deviceRepository::save);
     }
-
 }

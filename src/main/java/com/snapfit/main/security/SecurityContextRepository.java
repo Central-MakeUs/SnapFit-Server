@@ -1,6 +1,8 @@
 package com.snapfit.main.security;
 
 
+import com.snapfit.main.common.exception.ErrorResponse;
+import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +31,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
                 .filter(authHeader -> {
                     return authHeader.startsWith("Bearer ");
                 })
+                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_REQUEST)))
                 .flatMap(authHeader -> {
                     String authToken = authHeader.substring(7);
                     Authentication auth = new UsernamePasswordAuthenticationToken(authToken, authToken);

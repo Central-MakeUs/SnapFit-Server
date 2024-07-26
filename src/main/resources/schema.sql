@@ -8,7 +8,9 @@ create table SnapfitUser (
     login_time timestamp NOT  NULL,
     is_marketing_receive boolean NOT NULL,
     is_photographer boolean NOT NULL,
-    is_noti boolean NOT NULL
+    is_noti boolean NOT null,
+    is_valid boolean not null,
+    profile varchar
 );
 
 create table UserDevice (
@@ -19,4 +21,15 @@ create table UserDevice (
     user_id bigint NOT NULL,
     FOREIGN KEY (user_id)
     REFERENCES SnapfitUser(id)
+    on delete cascade
 );
+
+
+create table refresh_token (
+	id SERIAL primary key,
+	refresh_token VARCHAR(512) not null,
+	user_id bigint not null,
+	FOREIGN KEY (user_id)
+    REFERENCES SnapfitUser(id)
+    on delete cascade
+)

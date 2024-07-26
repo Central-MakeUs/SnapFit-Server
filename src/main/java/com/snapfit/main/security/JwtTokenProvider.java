@@ -53,9 +53,9 @@ public class JwtTokenProvider {
 
         return Mono.just(validateToken(refreshToken))
                 .filter(valid -> valid)
+                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
                 .flatMap(valid -> refreshTokenRepository.findByRefreshToken(refreshToken))
-                .filter(refreshTokenInfo -> !refreshTokenInfo.isLogout())
-                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_AUTH)))
+                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
                 .map(refreshTokenInfo -> createToken(new RequestTokenInfo(refreshTokenInfo.getUserId())));
     }
 
@@ -72,9 +72,19 @@ public class JwtTokenProvider {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
+        } catch (Exception e) {
+            log.info("invalid jwt");
         }
 
         return false;
+    }
+
+    public Mono<Void> logOut(Long userId, String refreshToken) {
+        if (!validateToken(refreshToken) || !getUserId(refreshToken).equals(userId)) {
+            return Mono.error(new ErrorResponse(CommonErrorCode.INVALID_AUTH));
+        }
+
+        return refreshTokenRepository.deleteByRefreshToken(refreshToken);
     }
 
     public Long getUserId(String token) {
@@ -107,7 +117,6 @@ public class JwtTokenProvider {
 
     private void saveRefreshToken(RequestTokenInfo requestTokenInfo, String refreshToken) {
         refreshTokenRepository.save(RefreshTokenInfo.builder()
-                        .isLogout(false)
                         .userId(requestTokenInfo.getUserId())
                         .refreshToken(refreshToken)
                 .build())

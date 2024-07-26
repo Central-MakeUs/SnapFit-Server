@@ -21,7 +21,5 @@ public class RefreshTokenInfo {
     //fk
     @Column("user_id")
     private Long userId;
-
-    @Column("is_logout")
-    private boolean isLogout;
 }
+

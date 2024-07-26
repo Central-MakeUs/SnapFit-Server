@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -51,6 +52,13 @@ public class LoginController {
     @GetMapping("/refresh/token")
     Mono<ResponseEntity<JwtToken>> refreshToken(@RequestParam("refreshToken") String refreshToken) {
         return userAdapter.refreshToken(refreshToken).map(ResponseEntity::ok);
+    }
+
+    @PostMapping("/snafit/logout")
+    @SecurityRequirement(name = "Bearer Authentication")
+    Mono<ResponseEntity<Void>> logOut(Authentication authentication, @RequestParam("refreshToken") String refreshToken) {
+
+        return userAdapter.logOut(Long.valueOf(authentication.getName()), refreshToken).map(ResponseEntity::ok);
     }
 
 }

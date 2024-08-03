@@ -1,6 +1,6 @@
 package com.snapfit.main.config;
 
-import com.snapfit.main.user.domain.enums.converter.SocialTypeReadConverter;
+import com.snapfit.main.user.infra.persistence.converter.SocialTypeReadConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;

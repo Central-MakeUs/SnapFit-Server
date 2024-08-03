@@ -2,6 +2,7 @@ package com.snapfit.main.user.domain.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.snapfit.main.common.exception.ErrorResponse;
+import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
 import lombok.Getter;
 
@@ -24,7 +25,7 @@ public enum SocialType {
     public static SocialType findBySocial(String social) {
         return Arrays.stream(SocialType.values()).filter(socialType -> socialType.socialName.equalsIgnoreCase(social))
                 .findFirst()
-                .orElseThrow(() ->new ErrorResponse(UserErrorCode.INVALID_REQUEST));
+                .orElseThrow(() ->new ErrorResponse(CommonErrorCode.INVALID_REQUEST));
     }
 
 }

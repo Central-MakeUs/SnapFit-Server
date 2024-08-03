@@ -1,13 +1,13 @@
 package com.snapfit.main.user.domain;
 
 import com.snapfit.main.user.domain.enums.SocialType;
-import com.snapfit.main.user.domain.enums.VibeType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -26,7 +26,8 @@ public class SnapfitUser {
 
     private String nickName;
 
-    private List<VibeType> vibes;
+    @Transient
+    private List<Vibe> vibes;
 
     @Column("social_type")
     private SocialType socialType;

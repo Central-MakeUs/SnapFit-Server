@@ -2,7 +2,7 @@ package com.snapfit.main.user.domain.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.snapfit.main.common.exception.ErrorResponse;
-import com.snapfit.main.user.domain.exception.UserErrorCode;
+import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -22,6 +22,6 @@ public enum DeviceType {
     public static DeviceType findByDevice(String device) {
         return Arrays.stream(DeviceType.values()).filter(deviceType -> deviceType.device.equalsIgnoreCase(device))
                 .findFirst()
-                .orElseThrow(() ->new ErrorResponse(UserErrorCode.INVALID_REQUEST));
+                .orElseThrow(() ->new ErrorResponse(CommonErrorCode.INVALID_REQUEST));
     }
 }

@@ -1,19 +1,18 @@
 package com.snapfit.main.user.adapter;
 
 import com.snapfit.main.common.annoataion.Adapter;
-import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
-import com.snapfit.main.security.RefreshTokenInfo;
 import com.snapfit.main.security.dto.RequestTokenInfo;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.application.UserService;
-import com.snapfit.main.user.domain.SnapfitUser;
+import com.snapfit.main.user.domain.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
-import com.snapfit.main.user.domain.exception.UserErrorCode;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Adapter
 @RequiredArgsConstructor
@@ -38,6 +37,10 @@ public class UserAdapter {
 
     public Mono<JwtToken> refreshToken(String refreshToken) {
         return jwtTokenProvider.refreshToken(refreshToken);
+    }
+
+    public Mono<List<Vibe>> findAllVibes() {
+        return userService.findAllVibes();
     }
 
     public Mono<Void> logOut(Long userId, String refreshToken) {

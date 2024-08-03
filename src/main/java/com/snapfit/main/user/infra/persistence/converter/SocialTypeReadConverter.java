@@ -1,4 +1,4 @@
-package com.snapfit.main.user.domain.enums.converter;
+package com.snapfit.main.user.infra.persistence.converter;
 
 import com.snapfit.main.user.domain.enums.SocialType;
 import org.springframework.core.convert.converter.Converter;

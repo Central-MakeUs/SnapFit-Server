@@ -33,5 +33,5 @@ security:
 
 jwt:
   secret: ${jwt.secret}
-  access-expire: 100
-  refresh-expire: 1000
+  access-expire: ${jwt.access-expire}
+  refresh-expire: ${jwt.refresh-expire}

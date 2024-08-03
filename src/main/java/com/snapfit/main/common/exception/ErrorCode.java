@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
 @JsonSerialize(as=ErrorCode.class)

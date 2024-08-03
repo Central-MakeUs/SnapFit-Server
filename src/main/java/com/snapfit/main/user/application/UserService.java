@@ -8,16 +8,17 @@ import com.snapfit.main.security.dto.RequestTokenInfo;
 import com.snapfit.main.user.domain.*;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
+import com.snapfit.main.user.domain.VibeFinder;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -27,7 +28,9 @@ public class UserService {
 
     private final SnapfitUserRepository snapfitUserRepository;
     private final DeviceRepository deviceRepository;
+    private final UserVibeRepository userVibeRepository;
     private final Map<SocialType, SocialLogin> socialLoginMap;
+    private final VibeFinder vibeFinder;
 
     @Transactional
     public Mono<JwtToken> signUp(String accessToken, SignUpDto signUpDto, JwtTokenProvider jwtTokenProvider) {
@@ -45,7 +48,7 @@ public class UserService {
                     SnapfitUser user = SnapfitUser.builder()
                             .socialType(requestSocialType)
                             .socialId(socialInfo.getSocialId())
-                            .vibes(signUpDto.getVibes())
+//                            .vibes(signUpDto.getVibes().stream().map(vibeType::findByVibe).toList())
                             .isNoti(true)
                             .isPhotographer(false)
                             .nickName(signUpDto.getNickName())
@@ -54,13 +57,25 @@ public class UserService {
                             .profilePath(null)
                             .build();
 
-                    return snapfitUserRepository.save(user);
+                    List<Vibe> vibes = signUpDto.getVibes().stream().map(vibeFinder::findByVibe).toList();
+
+                    return snapfitUserRepository.save(user)
+                            .flatMap(saveUser -> {
+                                List<UserVibe> userVibes = vibes.stream().map(vibe -> UserVibe.builder()
+                                        .userId(saveUser.getId())
+                                        .vibeId(vibe.getId())
+                                        .build()).toList();
+
+                                return userVibeRepository.saveAll(userVibes)
+                                        .then(Mono.just(saveUser));
+
+                            });
                 })
                 //3. device 정보 db에 저장
                 .flatMap(user -> upsertDevice(user, signUpDto.getDeviceType(), signUpDto.getDeviceToken())
                         .then(Mono.just(user)))
                 // 4. 토큰 반환
-                .flatMap(snapfitUser -> Mono.just(jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser))));
+                .map(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
     }
 
     @Transactional
@@ -86,6 +101,11 @@ public class UserService {
                 .flatMap(this::updateLoginTime);
     }
 
+    @Transactional(readOnly = true)
+    public Mono<List<Vibe>> findAllVibes() {
+        return Mono.just(vibeFinder.findAllVibes());
+    }
+
     private Mono<SnapfitUser> updateLoginTime(SnapfitUser snapfitUser) {
         return Mono.just(snapfitUser)
                 .flatMap(user -> {
@@ -94,7 +114,7 @@ public class UserService {
                 });
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Mono<SnapfitUser> getSnapfitUser(long userId) {
         return snapfitUserRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));

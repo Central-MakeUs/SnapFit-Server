@@ -37,7 +37,9 @@ public class JwtSecurityConfig {
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        .pathMatchers("/snapfit/login", "/snapfit/signUp", "/refresh/token", "/snapfit/vibes")
+                        .pathMatchers("/snapfit/login", "/refresh/token", "/snapfit/vibes")
+                        .permitAll()
+                        .pathMatchers(HttpMethod.POST, "/snapfit/user")
                         .permitAll()
                         .pathMatchers(SWAGGER_PATH)
                         .permitAll()

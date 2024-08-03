@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 public class LoginController {
     private final UserAdapter userAdapter;
 
-    @PostMapping("/snapfit/signUp")
+    @PostMapping("/snapfit/user")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "소셜 회원가입", description = "소셜 토큰과 소셜 타입을 통해 회원가입을 할 수 있다. 헤더에는 소셜 access token을 넣어야 한다.")
     Mono<ResponseEntity<JwtToken>> signUp(
@@ -54,7 +54,7 @@ public class LoginController {
         return userAdapter.refreshToken(refreshToken).map(ResponseEntity::ok);
     }
 
-    @PostMapping("/snafit/logout")
+    @PostMapping("/sanpfit/logout")
     @SecurityRequirement(name = "Bearer Authentication")
     Mono<ResponseEntity<Void>> logOut(Authentication authentication, @RequestParam("refreshToken") String refreshToken) {
 

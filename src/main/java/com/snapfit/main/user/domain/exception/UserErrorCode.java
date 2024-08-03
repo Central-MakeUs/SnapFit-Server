@@ -6,12 +6,11 @@ import org.springframework.http.HttpStatus;
 
 @Schema(description = "login-controller 에서 반환하는 응답 값들")
 public enum UserErrorCode implements ErrorCode {
-    INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, 1, "소셜 로그인 토큰이 만료되었거나 불안정합니다."),
-    NOT_EXIST_USER(HttpStatus.UNAUTHORIZED, 2, "유저가 존재하지 않습니다."),
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, 3, "올바르지 않은 요청입니다."),
-    EXIST_USER(HttpStatus.UNAUTHORIZED, 4, "유저가 존재합니다."),
-    LEAVE_USER(HttpStatus.BAD_REQUEST, 5, "탈퇴한 유저입니다."),
-
+    //범위 10 ~ 20
+    INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, 10, "소셜 로그인 토큰이 만료되었거나 불안정합니다."),
+    NOT_EXIST_USER(HttpStatus.NOT_FOUND, 11, "유저가 존재하지 않습니다."),
+    EXIST_USER(HttpStatus.CONFLICT, 13, "유저가 존재합니다."),
+    LEAVE_USER(HttpStatus.NOT_FOUND, 14, "탈퇴한 유저입니다."),
     ;
 
 

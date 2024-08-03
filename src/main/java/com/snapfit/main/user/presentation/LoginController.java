@@ -30,6 +30,10 @@ public class LoginController {
     @PostMapping("/snapfit/user")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "소셜 회원가입", description = "소셜 토큰과 소셜 타입을 통해 회원가입을 할 수 있다. 헤더에는 소셜 access token을 넣어야 한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공", content = {@Content(schema = @Schema(implementation = JwtToken.class))}),
+            @ApiResponse(responseCode = "409", description = "유저가 이미 존재하는 경우", content = {@Content(schema = @Schema(implementation = UserErrorCode.class))})
+    })
     Mono<ResponseEntity<JwtToken>> signUp(
             @Parameter(hidden = true) @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid SignUpDto signUpDto) {
@@ -42,6 +46,7 @@ public class LoginController {
     @Operation(summary = "소셜 로그인", description = "소셜 토큰과 소셜 타입을 통해 로그인을 할 수 있다. 헤더에는 소셜 access token을 넣어야 한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공", content = {@Content(schema = @Schema(implementation = JwtToken.class))}),
+            @ApiResponse(responseCode = "404", description = "유저 존재하지 않거나 탈퇴한 경우", content = {@Content(schema = @Schema(implementation = UserErrorCode.class))})
     })
     Mono<ResponseEntity<JwtToken>> login(
             @Parameter(hidden = true)@RequestHeader("Authorization") String accessToken,

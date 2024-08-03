@@ -4,7 +4,7 @@ import com.snapfit.main.common.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
-@Schema(description = "login-controller 에서 반환하는 응답 값들")
+@Schema(implementation = ErrorCode.class, description = "login-controller 에서 반환하는 응답 값")
 public enum UserErrorCode implements ErrorCode {
     //범위 10 ~ 20
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, 10, "소셜 로그인 토큰이 만료되었거나 불안정합니다."),

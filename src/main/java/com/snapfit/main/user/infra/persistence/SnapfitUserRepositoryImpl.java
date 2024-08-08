@@ -4,7 +4,7 @@ import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.user.domain.SnapfitUser;
 import com.snapfit.main.user.domain.SnapfitUserRepository;
 import com.snapfit.main.user.domain.UserVibeRepository;
-import com.snapfit.main.user.domain.Vibe;
+import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
 import com.snapfit.main.user.infra.persistence.r2dbc.SnapfitUserR2dbcRepository;
@@ -28,9 +28,9 @@ public class SnapfitUserRepositoryImpl implements SnapfitUserRepository {
 
     @Override
     public Mono<SnapfitUser> findBySocialIdAndSocialType(String socialId, SocialType socialType) {
-        return databaseClient.sql("SELECT su.*, uv.vibe_id, v.name as vibe_name FROM SnapfitUser su " +
-                "LEFT JOIN UserVibe uv ON su.id = uv.user_id " +
-                "LEFT JOIN Vibe v ON uv.vibe_id = v.id " +
+        return databaseClient.sql("SELECT su.*, uv.vibe_id, v.name as vibe_name FROM snapfit_user su " +
+                "LEFT JOIN user_vibe uv ON su.id = uv.user_id " +
+                "LEFT JOIN vibe_config v ON uv.vibe_id = v.id " +
                 "WHERE su.social_id = :socialId AND su.social_type = :socialType")
                 .bind("socialId", socialId)
                 .bind("socialType", socialType.getSocialName())
@@ -52,9 +52,9 @@ public class SnapfitUserRepositoryImpl implements SnapfitUserRepository {
 
     @Override
     public Mono<SnapfitUser> findById(Long id) {
-        return databaseClient.sql("SELECT su.*, uv.vibe_id, v.name as vibe_name FROM SnapfitUser su " +
-                        "LEFT JOIN UserVibe uv ON su.id = uv.user_id " +
-                        "LEFT JOIN Vibe v ON uv.vibe_id = v.id " +
+        return databaseClient.sql("SELECT su.*, uv.vibe_id, v.name as vibe_name FROM snapfit_user su " +
+                        "LEFT JOIN user_vibe uv ON su.id = uv.user_id " +
+                        "LEFT JOIN vibe_config v ON uv.vibe_id = v.id " +
                         "WHERE su.id = :id")
                 .bind("id", id)
                 .fetch()

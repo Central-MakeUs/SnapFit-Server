@@ -1,4 +1,4 @@
-package com.snapfit.main.user.domain;
+package com.snapfit.main.common.domain.location;
 
 
 import lombok.AllArgsConstructor;
@@ -9,18 +9,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("user_vibe")
+@Table("location_config")
 @Builder
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserVibe {
+public class Location {
     @Id
     private Long id;
 
-    @Column("user_id")
-    private Long userId;
-
-    @Column("vibe_id")
-    private Long vibeId;
+    @Column("admin_name")
+    private String adminName;
 }

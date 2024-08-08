@@ -1,5 +1,4 @@
-package com.snapfit.main.user.domain;
-
+package com.snapfit.main.post.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,18 +8,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("user_vibe")
+@Table("post_vibe")
 @Builder
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserVibe {
+public class PostVibe {
     @Id
     private Long id;
 
-    @Column("user_id")
-    private Long userId;
-
     @Column("vibe_id")
     private Long vibeId;
+
+    @Column("post_id")
+    private Long postId;
 }

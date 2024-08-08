@@ -1,7 +1,7 @@
 package com.snapfit.main.user.infra.persistence.converter;
 
 import com.snapfit.main.user.domain.SnapfitUser;
-import com.snapfit.main.user.domain.Vibe;
+import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
 import io.r2dbc.spi.Row;
 import org.springframework.core.convert.converter.Converter;

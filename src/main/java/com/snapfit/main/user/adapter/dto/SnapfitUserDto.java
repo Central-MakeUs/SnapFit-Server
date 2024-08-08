@@ -1,7 +1,7 @@
 package com.snapfit.main.user.adapter.dto;
 
 import com.snapfit.main.user.domain.SnapfitUser;
-import com.snapfit.main.user.domain.Vibe;
+import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
 import lombok.Getter;
 

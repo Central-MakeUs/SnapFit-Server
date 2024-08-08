@@ -6,6 +6,8 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import reactor.core.publisher.Mono;
 
+
+//TODO 나머지 r2dbc 전부 infra 계층으로 내리고, 이 안에 넣을 필요 있어보임?
 @EnableR2dbcRepositories
 public interface SnapfitUserRepository {
 

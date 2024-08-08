@@ -8,6 +8,14 @@ spring:
 
   application:
     name: main
+  cloud:
+    gcp:
+      storage:
+        project-id:
+        credentials:
+          location:
+        bucket:
+        max-size: 5242880
 
 
 server:

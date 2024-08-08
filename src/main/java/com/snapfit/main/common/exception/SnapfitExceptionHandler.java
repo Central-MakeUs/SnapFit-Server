@@ -4,6 +4,7 @@ package com.snapfit.main.common.exception;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
+@Slf4j
 public class SnapfitExceptionHandler {
 
     private final ObjectMapper objectMapper;
@@ -29,6 +31,7 @@ public class SnapfitExceptionHandler {
 
     @ExceptionHandler(ServerWebInputException.class)
     public Mono<ResponseEntity<ErrorCode>> handleErrorResponse(ServerWebInputException serverWebInputException) {
+        log.error("[INVALID_REQUEST] {}", serverWebInputException.getMessage());
         return Mono.just(ResponseEntity.status(CommonErrorCode.INVALID_REQUEST.getHttpStatus()).body(CommonErrorCode.INVALID_REQUEST));
     }
 

@@ -1,26 +1,25 @@
-package com.snapfit.main.user.domain;
-
+package com.snapfit.main.common.domain.vibe;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("user_vibe")
+@Table("vibe_config")
 @Builder
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserVibe {
+public class Vibe {
+
     @Id
     private Long id;
 
-    @Column("user_id")
-    private Long userId;
+    //TODO 추후 분위기마다 사진 예시 추가 예정
+//    private String path;
 
-    @Column("vibe_id")
-    private Long vibeId;
+    private String name;
+
 }

@@ -1,5 +1,6 @@
 package com.snapfit.main.user.domain;
 
+import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Table("SnapfitUser")
+@Table("snapfit_user")
 @Builder
 @Getter
 @AllArgsConstructor

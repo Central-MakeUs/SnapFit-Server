@@ -2,7 +2,7 @@ package com.snapfit.main.user.presentation;
 
 import com.snapfit.main.user.adapter.UserAdapter;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
-import com.snapfit.main.user.domain.Vibe;
+import com.snapfit.main.common.domain.vibe.Vibe;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-
 public class UserController {
 
     private final UserAdapter userAdapter;

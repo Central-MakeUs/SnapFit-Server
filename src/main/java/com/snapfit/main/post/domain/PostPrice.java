@@ -1,25 +1,30 @@
-package com.snapfit.main.user.domain;
+package com.snapfit.main.post.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table
+@Table("post_price")
 @Builder
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Vibe {
+public class PostPrice {
 
     @Id
     private Long id;
 
-    //TODO 추후 분위기마다 사진 예시 추가 예정
-//    private String path;
+    @Column("post_id")
+    private Long postId;
 
-    private String name;
+    @Column("minutes")
+    private Integer minute;
+
+    @Column("price")
+    private Integer price;
 
 }

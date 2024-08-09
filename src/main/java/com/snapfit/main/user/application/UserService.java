@@ -1,5 +1,6 @@
 package com.snapfit.main.user.application;
 
+import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import com.snapfit.main.security.JwtToken;
@@ -8,7 +9,7 @@ import com.snapfit.main.security.dto.RequestTokenInfo;
 import com.snapfit.main.user.domain.*;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
-import com.snapfit.main.user.domain.VibeFinder;
+import com.snapfit.main.common.domain.vibe.VibeFinder;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
@@ -117,7 +118,9 @@ public class UserService {
     @Transactional(readOnly = true)
     public Mono<SnapfitUser> getSnapfitUser(long userId) {
         return snapfitUserRepository.findById(userId)
-                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)));
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)))
+                .filter(SnapfitUser::isValid)
+                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.LEAVE_USER)));
     }
 
     @Transactional
@@ -131,12 +134,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Mono<Void> assertValidUser(long userId) {
-        return snapfitUserRepository.findById(userId)
-                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.NOT_EXIST_USER)))
-                .filter(SnapfitUser::isValid)
-                .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.LEAVE_USER)))
-                .then();
+    public Mono<String> findNicknameById(long userId){
+        return this.getSnapfitUser(userId)
+                .map(SnapfitUser::getNickName);
     }
 
 

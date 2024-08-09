@@ -6,7 +6,7 @@ import com.snapfit.main.security.JwtTokenProvider;
 import com.snapfit.main.security.dto.RequestTokenInfo;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.application.UserService;
-import com.snapfit.main.user.domain.Vibe;
+import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;

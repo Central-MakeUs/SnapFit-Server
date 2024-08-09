@@ -1,7 +1,9 @@
 package com.snapfit.main.post.presentation;
 
+import com.snapfit.main.common.dto.PageResult;
 import com.snapfit.main.post.adapter.PostAdapter;
 import com.snapfit.main.post.application.dto.PostDetailDto;
+import com.snapfit.main.post.application.dto.PostSummaryDto;
 import com.snapfit.main.post.presentation.dto.CreatePostRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -25,6 +27,11 @@ public class PostController {
     @GetMapping("/snapfit/post")
     public Mono<ResponseEntity<PostDetailDto>> getPostDetail(Authentication authentication, @RequestParam("id") Long postId) {
         return postAdapter.getPostDetail(postId, Long.valueOf(authentication.getName())).map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/snapfit/posts")
+    public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getPosts(Authentication authentication, @RequestParam("vibe") String vibe, @RequestParam("limit") int limit, @RequestParam("offset") int offset) {
+        return postAdapter.findByVibe(limit, offset, vibe).map(ResponseEntity::ok);
     }
 
 }

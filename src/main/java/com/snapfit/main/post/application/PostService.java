@@ -5,8 +5,10 @@ import com.snapfit.main.common.domain.location.Location;
 import com.snapfit.main.common.domain.location.LocationFinder;
 import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.common.domain.vibe.VibeFinder;
+import com.snapfit.main.common.dto.PageResult;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.post.application.dto.PostDetailDto;
+import com.snapfit.main.post.application.dto.PostSummaryDto;
 import com.snapfit.main.post.domain.*;
 import com.snapfit.main.post.domain.dto.Price;
 import com.snapfit.main.post.domain.exception.PostErrorCode;
@@ -37,7 +39,7 @@ public class PostService {
                 })
                 .map(req -> converToPost(req, userId))
                 .flatMap(post -> postRepository.save(post,
-                        request.getImageNames(),
+                        request.getImageNames().stream().map(imageHandler::parseImagePath).toList(),
                         convertToLocations(request.getLocations()),
                         convertToVibes(request.getVibes()),
                         request.getPrices()))
@@ -49,6 +51,13 @@ public class PostService {
                 .map(this::convertToPostDetailDto);
     }
 
+    public Mono<PageResult<Post>> findByVibe( int limit, int offset, String vibe) {
+        return postRepository.findByVibes(limit, offset, vibeFinder.findByVibe(vibe));
+    }
+
+    public Mono<PageResult<Post>> find( int limit, int offset) {
+        return postRepository.findAll(limit, offset);
+    }
 
     private Post converToPost(CreatePostRequest postRequest, Long userId) {
         return Post.builder()
@@ -65,7 +74,6 @@ public class PostService {
     private PostDetailDto convertToPostDetailDto(Post post) {
         return PostDetailDto.builder()
                 .id(post.getId())
-                .makerNickName(null)  // Replace with actual nickname if available
                 .createAt(post.getCreateAt())
                 .thumbnail(post.getThumbnail())
                 .images(post.getPostImages().stream().map(PostImage::getPath).toList())

@@ -2,6 +2,7 @@ package com.snapfit.main.post.infra.persistence;
 
 import com.snapfit.main.common.domain.location.Location;
 import com.snapfit.main.common.domain.vibe.Vibe;
+import com.snapfit.main.common.dto.PageResult;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.post.domain.Post;
 import com.snapfit.main.post.domain.PostImage;
@@ -17,7 +18,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,15 +35,39 @@ public class PostRepositoryImpl implements PostRepository {
         return savePost(post)
                 .flatMap(savedPost -> saveRelatedEntities(savedPost.getId(), imagePaths, locations, vibes, prices)
                         .then(Mono.just(savedPost)))
-                .flatMap(this::populateTransientFields);
+                .flatMap(insertData -> findById(insertData.getId()));
     }
 
     @Override
     public Mono<Post> findById(Long id) {
-        return databaseClient.sql("SELECT * FROM post WHERE id = :id")
+        return databaseClient.sql("""
+                        SELECT
+                            p.id AS post_id,
+                            p.user_id,
+                            p.createAt,
+                            p.is_studio,
+                            p.title,
+                            p.description,
+                            p.person_price,
+                            p.thumbnail,
+                            p.is_valid,
+                            ARRAY_AGG(DISTINCT v.name) AS vibes,
+                            ARRAY_AGG(DISTINCT pi.path) AS post_images,
+                            ARRAY_AGG(DISTINCT l.admin_name) AS locations,
+                            ARRAY_AGG(DISTINCT pp.price || ':' || pp.minutes) AS prices
+                        FROM post p
+                        LEFT JOIN post_vibe pv ON p.id = pv.post_id
+                        LEFT JOIN vibe_config v ON pv.vibe_id = v.id
+                        LEFT JOIN post_image pi ON p.id = pi.post_id
+                        LEFT JOIN post_location pl ON p.id = pl.post_id
+                        LEFT JOIN location_config l ON pl.location_id = l.id
+                        LEFT JOIN post_price pp ON p.id = pp.post_id
+                        WHERE p.id = :id
+                        GROUP BY p.id
+                        """)
                 .bind("id", id)
                 .map((row, rowMetadata) -> Post.builder()
-                        .id(row.get("id", Long.class))
+                        .id(row.get("post_id", Long.class))
                         .userId(row.get("user_id", Long.class))
                         .createAt(row.get("createAt", LocalDateTime.class))
                         .isStudio(row.get("is_studio", Boolean.class))
@@ -48,12 +76,176 @@ public class PostRepositoryImpl implements PostRepository {
                         .personPrice(row.get("person_price", Integer.class))
                         .thumbnail(row.get("thumbnail", String.class))
                         .isValid(row.get("is_valid", Boolean.class))
+                        .postVibes(Arrays.stream((String[]) row.get("vibes"))
+                                .map(name -> new Vibe(null, name))  // `Vibe` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postImages(Arrays.asList((String[]) row.get("post_images"))
+                                .stream()
+                                .map(path -> PostImage.builder().path(path).build())  // `PostImage` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .locations(Arrays.asList((String[]) row.get("locations"))
+                                .stream()
+                                .map(adminName -> Location.builder().adminName(adminName).build())  // `Location` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postPrices(Arrays.stream((String[]) row.get("prices"))
+                                .map(priceStr -> {
+                                    String[] parts = priceStr.split(":");
+                                    return PostPrice.builder()
+                                            .minute(Integer.parseInt(parts[1]))
+                                            .price(Integer.parseInt(parts[0]))
+                                            .build();
+                                })
+                                .collect(Collectors.toList()))
                         .build()
                 )
                 .one()
-                .switchIfEmpty(Mono.error(new ErrorResponse(PostErrorCode.NOT_EXIST_POST)))
-                .flatMap(this::populateTransientFields);  // 연관된 데이터를 채워넣습니다.
-}
+                .switchIfEmpty(Mono.error(new ErrorResponse(PostErrorCode.NOT_EXIST_POST)));
+    }
+
+    @Override
+    public Mono<PageResult<Post>> findByVibes(int limit, int offset, Vibe vibes) {
+        return databaseClient.sql("""
+                        SELECT
+                            p.id AS post_id,
+                            p.user_id,
+                            p.createAt,
+                            p.is_studio,
+                            p.title,
+                            p.description,
+                            p.person_price,
+                            p.thumbnail,
+                            p.is_valid,
+                            ARRAY_AGG(DISTINCT v.name) AS vibes,
+                            ARRAY_AGG(DISTINCT pi.path) AS post_images,
+                            ARRAY_AGG(DISTINCT l.admin_name) AS locations,
+                            ARRAY_AGG(DISTINCT pp.price || ':' || pp.minutes) AS prices
+                        FROM post p
+                        LEFT JOIN post_vibe pv ON p.id = pv.post_id
+                        LEFT JOIN vibe_config v ON pv.vibe_id = v.id
+                        LEFT JOIN post_image pi ON p.id = pi.post_id
+                        LEFT JOIN post_location pl ON p.id = pl.post_id
+                        LEFT JOIN location_config l ON pl.location_id = l.id
+                        LEFT JOIN post_price pp ON p.id = pp.post_id
+                        GROUP BY p.id
+                        HAVING :vibeName = ANY(ARRAY_AGG(v.name))
+                        ORDER BY p.id
+                        LIMIT :limit OFFSET :offset
+                        """)
+                .bind("vibeName", vibes.getName())
+                .bind("limit", limit)
+                .bind("offset", offset)
+                .map((row, rowMetadata) -> Post.builder()
+                        .id(row.get("post_id", Long.class))
+                        .userId(row.get("user_id", Long.class))
+                        .createAt(row.get("createAt", LocalDateTime.class))
+                        .isStudio(row.get("is_studio", Boolean.class))
+                        .title(row.get("title", String.class))
+                        .desc(row.get("description", String.class))
+                        .personPrice(row.get("person_price", Integer.class))
+                        .thumbnail(row.get("thumbnail", String.class))
+                        .isValid(row.get("is_valid", Boolean.class))
+                        .postVibes(Arrays.stream((String[]) row.get("vibes"))
+                                .map(name -> new Vibe(null, name))  // `Vibe` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postImages(Arrays.asList((String[]) row.get("post_images"))
+                                .stream()
+                                .map(path -> PostImage.builder().path(path).build())  // `PostImage` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .locations(Arrays.asList((String[]) row.get("locations"))
+                                .stream()
+                                .map(adminName -> Location.builder().adminName(adminName).build())  // `Location` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postPrices(Arrays.stream((String[]) row.get("prices"))
+                                .map(priceStr -> {
+                                    String[] parts = priceStr.split(":");
+                                    return PostPrice.builder()
+                                            .minute(Integer.parseInt(parts[1]))
+                                            .price(Integer.parseInt(parts[0]))
+                                            .build();
+                                })
+                                .collect(Collectors.toList()))
+                        .build()
+                )
+                .all()
+                .collectList()
+                .switchIfEmpty(Mono.just(new ArrayList<Post>()))
+                .map(posts -> PageResult.<Post>builder()
+                        .offset(offset)
+                        .limit(limit)
+                        .data(posts)
+                        .build());
+    }
+
+    @Override
+    public Mono<PageResult<Post>> findAll(int limit, int offset) {
+        return databaseClient.sql("""
+                        SELECT
+                            p.id AS post_id,
+                            p.user_id,
+                            p.createAt,
+                            p.is_studio,
+                            p.title,
+                            p.description,
+                            p.person_price,
+                            p.thumbnail,
+                            p.is_valid,
+                            ARRAY_AGG(DISTINCT v.name) AS vibes,
+                            ARRAY_AGG(DISTINCT pi.path) AS post_images,
+                            ARRAY_AGG(DISTINCT l.admin_name) AS locations,
+                            ARRAY_AGG(DISTINCT pp.price || ':' || pp.minutes) AS prices
+                        FROM post p
+                        LEFT JOIN post_vibe pv ON p.id = pv.post_id
+                        LEFT JOIN vibe_config v ON pv.vibe_id = v.id
+                        LEFT JOIN post_image pi ON p.id = pi.post_id
+                        LEFT JOIN post_location pl ON p.id = pl.post_id
+                        LEFT JOIN location_config l ON pl.location_id = l.id
+                        LEFT JOIN post_price pp ON p.id = pp.post_id
+                        GROUP BY p.id
+                        ORDER BY p.id
+                        LIMIT :limit OFFSET :offset
+                        """)
+                .bind("limit", limit)
+                .bind("offset", offset)
+                .map((row, rowMetadata) -> Post.builder()
+                        .id(row.get("post_id", Long.class))
+                        .userId(row.get("user_id", Long.class))
+                        .createAt(row.get("createAt", LocalDateTime.class))
+                        .isStudio(row.get("is_studio", Boolean.class))
+                        .title(row.get("title", String.class))
+                        .desc(row.get("description", String.class))
+                        .personPrice(row.get("person_price", Integer.class))
+                        .thumbnail(row.get("thumbnail", String.class))
+                        .isValid(row.get("is_valid", Boolean.class))
+                        .postVibes(Arrays.stream((String[]) row.get("vibes"))
+                                .map(name -> new Vibe(null, name))  // `Vibe` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postImages(Arrays.stream((String[]) row.get("post_images"))
+                                .map(path -> PostImage.builder().path(path).build())  // `PostImage` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .locations(Arrays.asList((String[]) row.get("locations"))
+                                .stream()
+                                .map(adminName -> Location.builder().adminName(adminName).build())  // `Location` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postPrices(Arrays.stream((String[]) row.get("prices"))
+                                .map(priceStr -> {
+                                    String[] parts = priceStr.split(":");
+                                    return PostPrice.builder()
+                                            .minute(Integer.parseInt(parts[1]))
+                                            .price(Integer.parseInt(parts[0]))
+                                            .build();
+                                })
+                                .collect(Collectors.toList()))
+                        .build()
+                )
+                .all()
+                .collectList()
+                .switchIfEmpty(Mono.just(new ArrayList<Post>()))
+                .map(posts -> PageResult.<Post>builder()
+                        .offset(offset)
+                        .limit(limit)
+                        .data(posts)
+                        .build());
+    }
 
 
     private Mono<Post> savePost(Post post) {
@@ -125,57 +317,57 @@ public class PostRepositoryImpl implements PostRepository {
                         .then());
     }
 
-    private Mono<Post> populateTransientFields(Post post) {
-        return Mono.zip(
-                getPostImages(post.getId()).collectList(),
-                getPostPrices(post.getId()).collectList(),
-                getPostVibes(post.getId()).collectList(),
-                getLocations(post.getId()).collectList()
-        ).map(tuple -> {
-            post.setPostImages(tuple.getT1());
-            post.setPostPrices(tuple.getT2());
-            post.setPostVibes(tuple.getT3());
-            post.setLocations(tuple.getT4());
-            return post;
-        });
-    }
-
-    private Flux<PostImage> getPostImages(Long postId) {
-        return databaseClient.sql("SELECT * FROM post_image WHERE post_id = :postId")
-                .bind("postId", postId)
-                .map((row, rowMetadata) -> new PostImage(
-                        row.get("id", Long.class),
-                        row.get("post_id", Long.class),
-                        row.get("path", String.class)
-                )).all();
-    }
-
-    private Flux<PostPrice> getPostPrices(Long postId) {
-        return databaseClient.sql("SELECT * FROM post_price WHERE post_id = :postId")
-                .bind("postId", postId)
-                .map((row, rowMetadata) -> new PostPrice(
-                        row.get("id", Long.class),
-                        row.get("post_id", Long.class),
-                        row.get("minutes", Integer.class),
-                        row.get("price", Integer.class)
-                )).all();
-    }
-
-    private Flux<Vibe> getPostVibes(Long postId) {
-        return databaseClient.sql("SELECT v.* FROM post_vibe pv JOIN vibe_config v ON pv.vibe_id = v.id WHERE pv.post_id = :postId")
-                .bind("postId", postId)
-                .map((row, rowMetadata) -> new Vibe(
-                        row.get("id", Long.class),
-                        row.get("name", String.class)
-                )).all();
-    }
-
-    private Flux<Location> getLocations(Long postId) {
-        return databaseClient.sql("SELECT l.* FROM post_location pl JOIN location_config l ON pl.location_id = l.id WHERE pl.post_id = :postId")
-                .bind("postId", postId)
-                .map((row, rowMetadata) -> new Location(
-                        row.get("id", Long.class),
-                        row.get("admin_name", String.class)
-                )).all();
-    }
+//    private Mono<Post> populateTransientFields(Post post) {
+//        return Mono.zip(
+//                getPostImages(post.getId()).collectList(),
+//                getPostPrices(post.getId()).collectList(),
+//                getPostVibes(post.getId()).collectList(),
+//                getLocations(post.getId()).collectList()
+//        ).map(tuple -> {
+//            post.setPostImages(tuple.getT1());
+//            post.setPostPrices(tuple.getT2());
+//            post.setPostVibes(tuple.getT3());
+//            post.setLocations(tuple.getT4());
+//            return post;
+//        });
+//    }
+//
+//    private Flux<PostImage> getPostImages(Long postId) {
+//        return databaseClient.sql("SELECT * FROM post_image WHERE post_id = :postId")
+//                .bind("postId", postId)
+//                .map((row, rowMetadata) -> new PostImage(
+//                        row.get("id", Long.class),
+//                        row.get("post_id", Long.class),
+//                        row.get("path", String.class)
+//                )).all();
+//    }
+//
+//    private Flux<PostPrice> getPostPrices(Long postId) {
+//        return databaseClient.sql("SELECT * FROM post_price WHERE post_id = :postId")
+//                .bind("postId", postId)
+//                .map((row, rowMetadata) -> new PostPrice(
+//                        row.get("id", Long.class),
+//                        row.get("post_id", Long.class),
+//                        row.get("minutes", Integer.class),
+//                        row.get("price", Integer.class)
+//                )).all();
+//    }
+//
+//    private Flux<Vibe> getPostVibes(Long postId) {
+//        return databaseClient.sql("SELECT v.* FROM post_vibe pv JOIN vibe_config v ON pv.vibe_id = v.id WHERE pv.post_id = :postId")
+//                .bind("postId", postId)
+//                .map((row, rowMetadata) -> new Vibe(
+//                        row.get("id", Long.class),
+//                        row.get("name", String.class)
+//                )).all();
+//    }
+//
+//    private Flux<Location> getLocations(Long postId) {
+//        return databaseClient.sql("SELECT l.* FROM post_location pl JOIN location_config l ON pl.location_id = l.id WHERE pl.post_id = :postId")
+//                .bind("postId", postId)
+//                .map((row, rowMetadata) -> new Location(
+//                        row.get("id", Long.class),
+//                        row.get("admin_name", String.class)
+//                )).all();
+//    }
 }

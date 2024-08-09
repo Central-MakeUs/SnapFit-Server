@@ -13,7 +13,9 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.sql.Array;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Table("post")
@@ -53,16 +55,16 @@ public class Post {
 
 
     @Transient
-    private List<PostPrice> postPrices;
+    private List<PostPrice> postPrices = new ArrayList<>();
 
     @Transient
-    private List<Vibe> postVibes;
+    private List<Vibe> postVibes = new ArrayList<>();
 
     @Transient
-    private List<Location> locations;
+    private List<Location> locations = new ArrayList<>();
 
     @Transient
-    private List<PostImage> postImages;
+    private List<PostImage> postImages = new ArrayList<>();
 
     public void setId(Long id) {
         this.id = id;

@@ -15,7 +15,6 @@ spring:
         max-size: 5242880
 location: ${gcp.key.path}
 
-
 server:
   port: 8081
 

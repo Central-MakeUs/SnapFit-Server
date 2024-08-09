@@ -11,10 +11,9 @@ spring:
     gcp:
       storage:
         project-id: ${gcp.project.id}
-        credentials:
-          location: ${gcp.key.path}
         bucket: ${gcp.bucket}
         max-size: 5242880
+location: ${gcp.key.path}
 
 
 server:

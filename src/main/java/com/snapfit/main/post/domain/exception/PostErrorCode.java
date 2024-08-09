@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 public enum PostErrorCode implements ErrorCode {
     //범위 21 30
     NOT_MAKER(HttpStatus.FORBIDDEN, 21, "메이커가 아닙니다."),
-    NOT_EXIST_IMAGE(HttpStatus.NOT_FOUND, 22, "이미지 파일이 존재하지 않습니다.")
+    NOT_EXIST_IMAGE(HttpStatus.NOT_FOUND, 22, "이미지 파일이 존재하지 않습니다."),
+    NOT_EXIST_POST(HttpStatus.NOT_FOUND, 23, "포스트가 존재하지 않습니다.")
     ;
 
 

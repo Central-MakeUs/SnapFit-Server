@@ -9,5 +9,7 @@ public interface ImageHandler {
     PostFile getImageSavePaths(List<FileType> fileTypes);
     Boolean isExistImage(String path);
 
+    String parseImagePath(String fileName);
+
 
 }

@@ -36,7 +36,16 @@ public class PostService {
                     return Mono.just(req);
                 })
                 .map(req -> converToPost(req, userId))
-                .flatMap(post -> postRepository.save(post, request.getImageNames(), convertToLocations(request.getLocations()),convertToVibes(request.getVibes()), request.getPrices()))
+                .flatMap(post -> postRepository.save(post,
+                        request.getImageNames(),
+                        convertToLocations(request.getLocations()),
+                        convertToVibes(request.getVibes()),
+                        request.getPrices()))
+                .map(this::convertToPostDetailDto);
+    }
+
+    public Mono<PostDetailDto> findPostDetailById(Long postId) {
+        return postRepository.findById(postId)
                 .map(this::convertToPostDetailDto);
     }
 
@@ -48,7 +57,8 @@ public class PostService {
                 .desc(postRequest.getDesc())
                 .isStudio(postRequest.isStudio())
                 .personPrice(postRequest.getPersonPrice())
-                .thumbnail(postRequest.getThumbnail())
+                .thumbnail(imageHandler.parseImagePath(postRequest.getThumbnail()))
+                .isValid(true)
                 .build();
     }
 
@@ -82,5 +92,9 @@ public class PostService {
 
     private List<Vibe> convertToVibes(List<String> vibes) {
         return vibes.stream().map(vibeFinder::findByVibe).toList();
+    }
+
+    private List<String> convertToImagePath(List<String> fileNames) {
+        return fileNames.stream().map(imageHandler::parseImagePath).toList();
     }
 }

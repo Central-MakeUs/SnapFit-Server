@@ -28,8 +28,9 @@ public class PostAdapter {
                 }));
     }
 
-//    public Mono<PostDetailDto> getPostDetail(Long postId, Long userId) {
-//        return userService.getSnapfitUser(userId);
-//    }
+    //TODO 좋아요 조회 기능 구현 필요....
+    public Mono<PostDetailDto> getPostDetail(Long postId, Long userId) {
+        return postService.findPostDetailById(postId);
+    }
 
 }

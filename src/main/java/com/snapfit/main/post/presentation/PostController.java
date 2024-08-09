@@ -22,9 +22,9 @@ public class PostController {
         return postAdapter.createPost(request, Long.valueOf(authentication.getName())).map(ResponseEntity::ok);
     }
 
-//    @GetMapping("/snapfit/post")
-//    public Mono<ResponseEntity<PostDetailDto>> getPostDetail(Authentication authentication, @RequestParam("id") Long postId) {
-//
-//    }
+    @GetMapping("/snapfit/post")
+    public Mono<ResponseEntity<PostDetailDto>> getPostDetail(Authentication authentication, @RequestParam("id") Long postId) {
+        return postAdapter.getPostDetail(postId, Long.valueOf(authentication.getName())).map(ResponseEntity::ok);
+    }
 
 }

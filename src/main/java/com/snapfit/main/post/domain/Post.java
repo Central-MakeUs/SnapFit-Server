@@ -48,6 +48,9 @@ public class Post {
     @Column("thumbnail")
     private String thumbnail;
 
+    @Column("is_valid")
+    private Boolean isValid;
+
 
     @Transient
     private List<PostPrice> postPrices;

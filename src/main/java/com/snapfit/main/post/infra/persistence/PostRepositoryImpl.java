@@ -2,11 +2,13 @@ package com.snapfit.main.post.infra.persistence;
 
 import com.snapfit.main.common.domain.location.Location;
 import com.snapfit.main.common.domain.vibe.Vibe;
+import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.post.domain.Post;
 import com.snapfit.main.post.domain.PostImage;
 import com.snapfit.main.post.domain.PostPrice;
 import com.snapfit.main.post.domain.PostRepository;
 import com.snapfit.main.post.domain.dto.Price;
+import com.snapfit.main.post.domain.exception.PostErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -32,16 +34,38 @@ public class PostRepositoryImpl implements PostRepository {
                 .flatMap(this::populateTransientFields);
     }
 
+    @Override
+    public Mono<Post> findById(Long id) {
+        return databaseClient.sql("SELECT * FROM post WHERE id = :id")
+                .bind("id", id)
+                .map((row, rowMetadata) -> Post.builder()
+                        .id(row.get("id", Long.class))
+                        .userId(row.get("user_id", Long.class))
+                        .createAt(row.get("createAt", LocalDateTime.class))
+                        .isStudio(row.get("is_studio", Boolean.class))
+                        .title(row.get("title", String.class))
+                        .desc(row.get("description", String.class))
+                        .personPrice(row.get("person_price", Integer.class))
+                        .thumbnail(row.get("thumbnail", String.class))
+                        .isValid(row.get("is_valid", Boolean.class))
+                        .build()
+                )
+                .one()
+                .switchIfEmpty(Mono.error(new ErrorResponse(PostErrorCode.NOT_EXIST_POST)))
+                .flatMap(this::populateTransientFields);  // 연관된 데이터를 채워넣습니다.
+}
+
 
     private Mono<Post> savePost(Post post) {
-        return databaseClient.sql("INSERT INTO post (user_id, is_studio, title, description, person_price, thumbnail) " +
-                        "VALUES (:userId, :isStudio, :title, :desc, :personPrice, :thumbnail) RETURNING id, createAt")
+        return databaseClient.sql("INSERT INTO post (user_id, is_studio, title, description, person_price, thumbnail, is_valid) " +
+                        "VALUES (:userId, :isStudio, :title, :desc, :personPrice, :thumbnail, :isValid) RETURNING id, createAt")
                 .bind("userId", post.getUserId())
                 .bind("isStudio", post.getIsStudio())
                 .bind("title", post.getTitle())
                 .bind("desc", post.getDesc())
                 .bind("personPrice", post.getPersonPrice())
                 .bind("thumbnail", post.getThumbnail())
+                .bind("isValid", post.getIsValid())
                 .map(row -> {
                     post.setId(row.get("id", Long.class));
                     post.setCreateAt(row.get("createAt", LocalDateTime.class));

@@ -58,4 +58,9 @@ public class GCSImageHandler implements ImageHandler {
 
         return blob != null && blob.exists();
     }
+
+    @Override
+    public String parseImagePath(String fileName) {
+        return String.format("https://storage.googleapis.com/%s/%s", bucketName, fileName);
+    }
 }

@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface PostRepository {
     Mono<Post> save(Post post, List<String> imagePaths, List<Location> locations, List<Vibe> vibes, List<Price> prices);
+
+    Mono<Post> findById(Long id);
     //TODO r2dbc page 조사 필요
 
 }

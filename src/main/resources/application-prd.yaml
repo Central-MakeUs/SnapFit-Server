@@ -10,10 +10,10 @@ spring:
   cloud:
     gcp:
       storage:
-        project-id: {gcp.project.id}
+        project-id: ${gcp.project.id}
         credentials:
-          location: {gcp.key.path}
-        bucket: {gcp.bucket}
+          location: ${gcp.key.path}
+        bucket: ${gcp.bucket}
         max-size: 5242880
 
 

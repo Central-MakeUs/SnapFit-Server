@@ -8,13 +8,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Configuration
 public class GcsConfig {
 
-    @Value("${spring.cloud.gcp.storage.credentials.location}")
+    @Value("${location}")
     private String location;
 
     @Value("${spring.cloud.gcp.storage.project-id}")
@@ -22,9 +27,10 @@ public class GcsConfig {
 
     @Bean
     public Storage storage() throws IOException {
-
+        System.out.println(location);
 //        ClassPathResource resource = new ClassPathResource(location);
-        InputStream inputStream = ResourceUtils.getURL(location).openStream();
+        Files.createDirectories(Path.of("/Users/yongha/Downloads/my"));
+        InputStream inputStream = Files.newInputStream(Path.of(location));
         GoogleCredentials credentials = GoogleCredentials.fromStream(inputStream);
 
         return StorageOptions.newBuilder()

@@ -41,22 +41,8 @@ public class PostAdapter {
                 }));
     }
 
-    public Mono<PageResult<PostSummaryDto>> findByVibe(int limit, int offset, String vibe) {
-        if (vibe.equalsIgnoreCase("전체")) {
-            return postService.find(limit, offset)
-                    .flatMap(postPageResult ->
-                            Flux.fromIterable(postPageResult.getData())
-                                    .flatMap(this::convertToPostSummary)
-                                    .collectList()
-                                    .map(postSummaryDtos -> PageResult.<PostSummaryDto>builder()
-                                            .limit(postPageResult.getLimit())
-                                            .offset(postPageResult.getOffset())
-                                            .data(postSummaryDtos)
-                                            .build())
-                    );
-        }
-
-        return postService.findByVibe(limit, offset, vibe)
+    public Mono<PageResult<PostSummaryDto>> findByVibe(int limit, int offset, List<String> vibes) {
+        return postService.findByVibe(limit, offset, vibes)
                 .flatMap(postPageResult ->
                         Flux.fromIterable(postPageResult.getData())
                                 .flatMap(this::convertToPostSummary)
@@ -69,7 +55,22 @@ public class PostAdapter {
         );
     }
 
-    //TODO 좋아요 조회 기능 구현 필요....
+    public Mono<PageResult<PostSummaryDto>> findAll(int limit, int offset) {
+        return postService.find(limit, offset)
+                .flatMap(postPageResult ->
+                        Flux.fromIterable(postPageResult.getData())
+                                .flatMap(this::convertToPostSummary)
+                                .collectList()
+                                .map(postSummaryDtos -> PageResult.<PostSummaryDto>builder()
+                                        .limit(postPageResult.getLimit())
+                                        .offset(postPageResult.getOffset())
+                                        .data(postSummaryDtos)
+                                        .build())
+                );
+    }
+
+
+        //TODO 좋아요 조회 기능 구현 필요....
     public Mono<PostDetailDto> getPostDetail(Long postId, Long userId) {
         return postService.findPostDetailById(postId);
     }
@@ -77,6 +78,7 @@ public class PostAdapter {
 
     private Mono<PostSummaryDto> convertToPostSummary(Post post) {
         return Mono.just(PostSummaryDto.builder()
+                        .id(post.getId())
                         .price(getMinPrice(post.getPostPrices()))
                         .title(post.getTitle())
                         .vibes(post.getPostVibes().stream().map(Vibe::getName).toList())

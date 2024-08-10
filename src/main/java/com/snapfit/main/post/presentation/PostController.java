@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
@@ -29,9 +31,14 @@ public class PostController {
         return postAdapter.getPostDetail(postId, Long.valueOf(authentication.getName())).map(ResponseEntity::ok);
     }
 
-    @GetMapping("/snapfit/posts")
-    public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getPosts(Authentication authentication, @RequestParam("vibe") String vibe, @RequestParam("limit") int limit, @RequestParam("offset") int offset) {
-        return postAdapter.findByVibe(limit, offset, vibe).map(ResponseEntity::ok);
+    @GetMapping("/snapfit/posts/filter/vibes")
+    public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getPosts(Authentication authentication, @RequestParam("vibes") List<String> vibes, @RequestParam("limit") int limit, @RequestParam("offset") int offset) {
+        return postAdapter.findByVibe(limit, offset, vibes).map(ResponseEntity::ok);
     }
 
+
+    @GetMapping("/snapfit/posts/all")
+    public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getAllPosts(Authentication authentication, @RequestParam("limit") int limit, @RequestParam("offset") int offset) {
+        return postAdapter.findAll(limit, offset).map(ResponseEntity::ok);
+    }
 }

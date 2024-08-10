@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Table("UserDevice")
+@Table("user_device")
 @Builder
 @Getter
 @AllArgsConstructor

@@ -37,7 +37,7 @@ public class JwtSecurityConfig {
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        .pathMatchers("/snapfit/login", "/refresh/token", "/snapfit/vibes")
+                        .pathMatchers("/snapfit/login", "/refresh/token", "/snapfit/vibes", "/snapfit/locations")
                         .permitAll()
                         .pathMatchers(HttpMethod.POST, "/snapfit/user")
                         .permitAll()

@@ -1,5 +1,6 @@
 package com.snapfit.main.user.presentation;
 
+import com.snapfit.main.common.domain.location.Location;
 import com.snapfit.main.user.adapter.UserAdapter;
 import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.common.domain.vibe.Vibe;
@@ -34,6 +35,11 @@ public class UserController {
     Mono<ResponseEntity<List<Vibe>>> vibes() {
         return userAdapter.findAllVibes()
                 .map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/snapfit/locations")
+    Mono<ResponseEntity<List<Location>>> locations() {
+        return userAdapter.getLocations().map(ResponseEntity::ok);
     }
 
     @SecurityRequirement(name = "Bearer Authentication")

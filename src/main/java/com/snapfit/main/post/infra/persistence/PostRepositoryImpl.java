@@ -103,7 +103,7 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Mono<PageResult<Post>> findByVibes(int limit, int offset, Vibe vibes) {
+    public Mono<PageResult<Post>> findByVibes(int limit, int offset, List<Vibe> vibes) {
         return databaseClient.sql("""
                         SELECT
                             p.id AS post_id,
@@ -128,11 +128,11 @@ public class PostRepositoryImpl implements PostRepository {
                         LEFT JOIN post_price pp ON p.id = pp.post_id
                         WHERE is_valid = true
                         GROUP BY p.id
-                        HAVING :vibeName = ANY(ARRAY_AGG(v.name))
+                        HAVING ARRAY_AGG(v.name) && :vibeNames::varchar[]
                         ORDER BY p.id
                         LIMIT :limit OFFSET :offset
                         """)
-                .bind("vibeName", vibes.getName())
+                .bind("vibeNames", vibes.stream().map(Vibe::getName).toList().toArray())
                 .bind("limit", limit)
                 .bind("offset", offset)
                 .map((row, rowMetadata) -> Post.builder()

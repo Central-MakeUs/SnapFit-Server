@@ -51,8 +51,8 @@ public class PostService {
                 .map(this::convertToPostDetailDto);
     }
 
-    public Mono<PageResult<Post>> findByVibe( int limit, int offset, String vibe) {
-        return postRepository.findByVibes(limit, offset, vibeFinder.findByVibe(vibe));
+    public Mono<PageResult<Post>> findByVibe( int limit, int offset, List<String> vibes) {
+        return postRepository.findByVibes(limit, offset, vibes.stream().map(vibeFinder::findByVibe).toList());
     }
 
     public Mono<PageResult<Post>> find( int limit, int offset) {

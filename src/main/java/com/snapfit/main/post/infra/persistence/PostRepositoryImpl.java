@@ -126,6 +126,7 @@ public class PostRepositoryImpl implements PostRepository {
                         LEFT JOIN post_location pl ON p.id = pl.post_id
                         LEFT JOIN location_config l ON pl.location_id = l.id
                         LEFT JOIN post_price pp ON p.id = pp.post_id
+                        WHERE is_valid = true
                         GROUP BY p.id
                         HAVING :vibeName = ANY(ARRAY_AGG(v.name))
                         ORDER BY p.id
@@ -200,6 +201,7 @@ public class PostRepositoryImpl implements PostRepository {
                         LEFT JOIN post_location pl ON p.id = pl.post_id
                         LEFT JOIN location_config l ON pl.location_id = l.id
                         LEFT JOIN post_price pp ON p.id = pp.post_id
+                        WHERE is_valid = true
                         GROUP BY p.id
                         ORDER BY p.id
                         LIMIT :limit OFFSET :offset

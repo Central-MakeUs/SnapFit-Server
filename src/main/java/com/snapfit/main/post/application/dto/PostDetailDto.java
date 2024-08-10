@@ -15,7 +15,7 @@ import java.util.List;
 public class PostDetailDto {
 
     private Long id;
-    private String makerNickName;
+    private SnapfitUserSummaryDto maker;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createAt;

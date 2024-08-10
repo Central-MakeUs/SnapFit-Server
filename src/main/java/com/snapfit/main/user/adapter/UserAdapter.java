@@ -1,6 +1,8 @@
 package com.snapfit.main.user.adapter;
 
 import com.snapfit.main.common.annoataion.Adapter;
+import com.snapfit.main.common.domain.location.Location;
+import com.snapfit.main.common.domain.location.LocationFinder;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
 import com.snapfit.main.security.dto.RequestTokenInfo;
@@ -19,6 +21,7 @@ import java.util.List;
 public class UserAdapter {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final LocationFinder locationFinder;
 
     public Mono<JwtToken> signUp(String socialAccessToken, SignUpDto signUpDto) {
         return userService.signUp(socialAccessToken, signUpDto, jwtTokenProvider);
@@ -33,6 +36,10 @@ public class UserAdapter {
     public Mono<SnapfitUserDto> getSnapfitUser(long userId) {
         return userService.getSnapfitUser(userId)
                 .map(SnapfitUserDto::new);
+    }
+
+    public Mono<List<Location>> getLocations() {
+        return Mono.just(locationFinder.findAllLocation());
     }
 
     public Mono<JwtToken> refreshToken(String refreshToken) {

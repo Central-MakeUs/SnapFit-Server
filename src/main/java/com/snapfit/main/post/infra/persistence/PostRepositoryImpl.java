@@ -249,6 +249,79 @@ public class PostRepositoryImpl implements PostRepository {
                         .build());
     }
 
+    @Override
+    public Mono<PageResult<Post>> findByMaker(int limit, int offset, int makerId) {
+        return databaseClient.sql("""
+                        SELECT
+                            p.id AS post_id,
+                            p.user_id,
+                            p.createAt,
+                            p.is_studio,
+                            p.title,
+                            p.description,
+                            p.person_price,
+                            p.thumbnail,
+                            p.is_valid,
+                            ARRAY_AGG(DISTINCT v.name) AS vibes,
+                            ARRAY_AGG(DISTINCT pi.path) AS post_images,
+                            ARRAY_AGG(DISTINCT l.admin_name) AS locations,
+                            ARRAY_AGG(DISTINCT pp.price || ':' || pp.minutes) AS prices
+                        FROM post p
+                        LEFT JOIN post_vibe pv ON p.id = pv.post_id
+                        LEFT JOIN vibe_config v ON pv.vibe_id = v.id
+                        LEFT JOIN post_image pi ON p.id = pi.post_id
+                        LEFT JOIN post_location pl ON p.id = pl.post_id
+                        LEFT JOIN location_config l ON pl.location_id = l.id
+                        LEFT JOIN post_price pp ON p.id = pp.post_id
+                        WHERE is_valid = true and p.user_id = :makerId
+                        GROUP BY p.id
+                        ORDER BY p.id
+                        LIMIT :limit OFFSET :offset
+                        """)
+                .bind("limit", limit)
+                .bind("offset", offset)
+                .bind("makerId", makerId)
+                .map((row, rowMetadata) -> Post.builder()
+                        .id(row.get("post_id", Long.class))
+                        .userId(row.get("user_id", Long.class))
+                        .createAt(row.get("createAt", LocalDateTime.class))
+                        .isStudio(row.get("is_studio", Boolean.class))
+                        .title(row.get("title", String.class))
+                        .desc(row.get("description", String.class))
+                        .personPrice(row.get("person_price", Integer.class))
+                        .thumbnail(row.get("thumbnail", String.class))
+                        .isValid(row.get("is_valid", Boolean.class))
+                        .postVibes(Arrays.stream((String[]) row.get("vibes"))
+                                .map(name -> new Vibe(null, name))  // `Vibe` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postImages(Arrays.stream((String[]) row.get("post_images"))
+                                .map(path -> PostImage.builder().path(path).build())  // `PostImage` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .locations(Arrays.asList((String[]) row.get("locations"))
+                                .stream()
+                                .map(adminName -> Location.builder().adminName(adminName).build())  // `Location` 객체로 변환
+                                .collect(Collectors.toList()))
+                        .postPrices(Arrays.stream((String[]) row.get("prices"))
+                                .map(priceStr -> {
+                                    String[] parts = priceStr.split(":");
+                                    return PostPrice.builder()
+                                            .minute(Integer.parseInt(parts[1]))
+                                            .price(Integer.parseInt(parts[0]))
+                                            .build();
+                                })
+                                .collect(Collectors.toList()))
+                        .build()
+                )
+                .all()
+                .collectList()
+                .switchIfEmpty(Mono.just(new ArrayList<Post>()))
+                .map(posts -> PageResult.<Post>builder()
+                        .offset(offset)
+                        .limit(limit)
+                        .data(posts)
+                        .build());
+    }
+
 
     private Mono<Post> savePost(Post post) {
         return databaseClient.sql("INSERT INTO post (user_id, is_studio, title, description, person_price, thumbnail, is_valid) " +

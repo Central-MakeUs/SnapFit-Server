@@ -37,16 +37,17 @@ public class JwtTokenProvider {
     }
 
 
-    public JwtToken createToken(RequestTokenInfo requestTokenInfo) {
+    public Mono<JwtToken> createToken(RequestTokenInfo requestTokenInfo) {
         String accessToken = createToken(requestTokenInfo, accessTokenExpireTime);
         String refreshToken = createToken(requestTokenInfo, refreshTokenExpireTime);
 
-        saveRefreshToken(requestTokenInfo, refreshToken);
+        return saveRefreshToken(requestTokenInfo, refreshToken)
+                .then(Mono.just(JwtToken.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build()));
 
-        return JwtToken.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+
     }
 
     public Mono<JwtToken> refreshToken(String refreshToken) {
@@ -56,7 +57,7 @@ public class JwtTokenProvider {
                 .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
                 .flatMap(valid -> refreshTokenRepository.findByRefreshToken(refreshToken))
                 .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
-                .map(refreshTokenInfo -> createToken(new RequestTokenInfo(refreshTokenInfo.getUserId())));
+                .flatMap(refreshTokenInfo -> createToken(new RequestTokenInfo(refreshTokenInfo.getUserId())));
     }
 
     public boolean validateToken(String token) {
@@ -114,12 +115,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private void saveRefreshToken(RequestTokenInfo requestTokenInfo, String refreshToken) {
-        refreshTokenRepository.save(RefreshTokenInfo.builder()
+    private Mono<RefreshTokenInfo> saveRefreshToken(RequestTokenInfo requestTokenInfo, String refreshToken) {
+        return refreshTokenRepository.save(RefreshTokenInfo.builder()
                         .userId(requestTokenInfo.getUserId())
                         .refreshToken(refreshToken)
-                .build())
-                .subscribe();
+                .build());
     }
 
 }

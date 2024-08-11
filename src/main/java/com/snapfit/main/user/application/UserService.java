@@ -76,7 +76,7 @@ public class UserService {
                 .flatMap(user -> upsertDevice(user, signUpDto.getDeviceType(), signUpDto.getDeviceToken())
                         .then(Mono.just(user)))
                 // 4. 토큰 반환
-                .map(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
+                .flatMap(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
     }
 
     @Transactional
@@ -155,6 +155,9 @@ public class UserService {
                         .deviceType(deviceType)
                         .loginDateTime(LocalDateTime.now())
                         .build()))
-                .flatMap(deviceRepository::save);
+                .flatMap(device -> {
+                    device.updateLoginTime();
+                    return deviceRepository.save(device);
+                });
     }
 }

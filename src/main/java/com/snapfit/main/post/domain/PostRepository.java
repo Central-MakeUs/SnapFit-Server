@@ -17,5 +17,7 @@ public interface PostRepository {
     Mono<PageResult<Post>> findByVibes(int limit, int offset, List<Vibe> vibes);
     Mono<PageResult<Post>> findAll(int limit, int offset);
 
+    Mono<PageResult<Post>> findByMaker(int limit, int offset, int makerId);
+
     //TODO 유저가 작성한 글 목록 볼 수 있는 페이지 필요.
 }

@@ -1,12 +1,10 @@
 package com.snapfit.main.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.SessionManagementDsl;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -21,6 +19,8 @@ public class JwtSecurityConfig {
 
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final ObjectMapper objectMapper;
+
     private final String[] SWAGGER_PATH= {"/api-docs/**","/swagger/**", "/v2/api-docs", "/v3/api-docs", "/v3/api-docs/**", "/swagger-resources",
             "/swagger-resources/**", "/configuration/ui", "/configuration/security", "/swagger-ui/**",
             "/webjars/**", "/swagger-ui.html"};
@@ -44,7 +44,10 @@ public class JwtSecurityConfig {
                         .pathMatchers(SWAGGER_PATH)
                         .permitAll()
                         .anyExchange()
-                        .authenticated()).build();
+                        .authenticated())
+                .exceptionHandling(exceptionHandlingSpec ->
+                        exceptionHandlingSpec.authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper)))
+                .build();
     }
 
 

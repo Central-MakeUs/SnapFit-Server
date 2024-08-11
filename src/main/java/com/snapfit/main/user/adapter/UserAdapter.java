@@ -30,7 +30,7 @@ public class UserAdapter {
     public Mono<JwtToken> login(String socialAccessToken, SocialType socialType) {
 
         return userService.login(socialAccessToken, socialType)
-                .map(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
+                .flatMap(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
     }
 
     public Mono<SnapfitUserDto> getSnapfitUser(long userId) {

@@ -30,8 +30,7 @@ public class KakaoLogin implements SocialLogin {
                 .header("Content-type", "Content-type: application/x-www-form-urlencoded;charset=utf-8")
                 .retrieve()
                 .onStatus(httpStatusCode -> !httpStatusCode.is2xxSuccessful(), clientResponse -> Mono.error(new ErrorResponse(UserErrorCode.INVALID_SOCIAL_TOKEN)))
-                .bodyToMono(KakaoUserId.class)
-                .log();
+                .bodyToMono(KakaoUserId.class);
     }
 
 

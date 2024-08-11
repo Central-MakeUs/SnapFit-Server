@@ -1,5 +1,7 @@
 package com.snapfit.main.security;
 
+import com.snapfit.main.common.exception.ErrorResponse;
+import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;

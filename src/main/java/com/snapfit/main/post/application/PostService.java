@@ -46,9 +46,12 @@ public class PostService {
                 .map(this::convertToPostDetailDto);
     }
 
-    public Mono<PostDetailDto> findPostDetailById(Long postId) {
-        return postRepository.findById(postId)
-                .map(this::convertToPostDetailDto);
+    public Mono<Post> findPostDetailById(Long postId) {
+        return postRepository.findById(postId);
+    }
+
+    public Mono<PageResult<Post>> findByMaker(int limit, int offset, long makerId) {
+        return postRepository.findByMaker(limit, offset, makerId);
     }
 
     public Mono<PageResult<Post>> findByVibe( int limit, int offset, List<String> vibes) {

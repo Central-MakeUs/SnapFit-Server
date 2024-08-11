@@ -2,6 +2,7 @@ package com.snapfit.main.config;
 
 import com.snapfit.main.user.domain.SocialLogin;
 import com.snapfit.main.user.domain.enums.SocialType;
+import com.snapfit.main.user.infra.apple.AppleLogin;
 import com.snapfit.main.user.infra.kakao.KakaoLogin;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +16,10 @@ import java.util.Map;
 @Configuration
 public class SocialConfig {
 
-    @Value("${social.kakao.url")
+    @Value("${social.kakao.url}")
     private String KAKAO_URL;
 
-    @Value("${social.apple.get_user_id_url")
+    @Value("${social.apple.url}")
     private String APPLE_GET_USER_ID_URL;
 
     @Bean
@@ -26,7 +27,7 @@ public class SocialConfig {
     public WebClient kakaoWebClient() {
         System.out.println(KAKAO_URL);
         return WebClient.builder()
-                .baseUrl("https://kapi.kakao.com/v2/user/me")
+                .baseUrl(KAKAO_URL)
                 .build();
     }
 
@@ -39,10 +40,10 @@ public class SocialConfig {
     }
 
     @Bean
-    public Map<SocialType, SocialLogin> socialLoginMap(KakaoLogin kakaoLogin) {
+    public Map<SocialType, SocialLogin> socialLoginMap(KakaoLogin kakaoLogin, AppleLogin appleLogin) {
         Map<SocialType, SocialLogin> map = new EnumMap<>(SocialType.class);
         map.put(SocialType.KAKAO, kakaoLogin);
-
+        map.put(SocialType.APPLE, appleLogin);
         return map;
     }
 }

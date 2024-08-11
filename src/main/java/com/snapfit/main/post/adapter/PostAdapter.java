@@ -11,7 +11,9 @@ import com.snapfit.main.post.application.dto.PostDetailDto;
 import com.snapfit.main.post.application.dto.PostSummaryDto;
 import com.snapfit.main.post.application.dto.SnapfitUserSummaryDto;
 import com.snapfit.main.post.domain.Post;
+import com.snapfit.main.post.domain.PostImage;
 import com.snapfit.main.post.domain.PostPrice;
+import com.snapfit.main.post.domain.dto.Price;
 import com.snapfit.main.post.domain.exception.PostErrorCode;
 import com.snapfit.main.post.presentation.dto.CreatePostRequest;
 import com.snapfit.main.user.application.UserService;
@@ -52,7 +54,7 @@ public class PostAdapter {
                                         .offset(postPageResult.getOffset())
                                         .data(postSummaryDtos)
                                         .build())
-        );
+                );
     }
 
     public Mono<PageResult<PostSummaryDto>> findAll(int limit, int offset) {
@@ -69,10 +71,48 @@ public class PostAdapter {
                 );
     }
 
+    public Mono<PageResult<PostSummaryDto>> findByMaker(int limit, int offset, long makerId) {
+        return postService.findByMaker(limit, offset, makerId).flatMap(postPageResult ->
+                Flux.fromIterable(postPageResult.getData())
+                        .flatMap(this::convertToPostSummary)
+                        .collectList()
+                        .map(postSummaryDtos -> PageResult.<PostSummaryDto>builder()
+                                .limit(postPageResult.getLimit())
+                                .offset(postPageResult.getOffset())
+                                .data(postSummaryDtos)
+                                .build())
+        );
+    }
 
-        //TODO 좋아요 조회 기능 구현 필요....
+
+    //TODO 좋아요 조회 기능 구현 필요....
     public Mono<PostDetailDto> getPostDetail(Long postId, Long userId) {
-        return postService.findPostDetailById(postId);
+        return postService.findPostDetailById(postId)
+                .flatMap(this::convertToPostDetailDto);
+
+    }
+
+    private Mono<PostDetailDto> convertToPostDetailDto(Post post) {
+        return Mono.just(PostDetailDto.builder()
+                        .id(post.getId())
+                        .createAt(post.getCreateAt())
+                        .thumbnail(post.getThumbnail())
+                        .images(post.getPostImages().stream().map(PostImage::getPath).toList())
+                        .desc(post.getDesc())
+                        .title(post.getTitle())
+                        .personPrice(post.getPersonPrice())
+                        .vibes(post.getPostVibes().stream().map(Vibe::getName).toList())
+                        .locations(post.getLocations().stream().map(Location::getAdminName).toList())
+                        .prices(post.getPostPrices().stream().map(postPrice -> new Price(postPrice.getMinute(), postPrice.getPrice())).toList())
+                        .build())
+                .flatMap(detailDto -> {
+                    return convertToSnapfitUserSummary(post.getUserId())
+                            .map(snapfitUserSummaryDto -> {
+                                detailDto.setMaker(snapfitUserSummaryDto);
+
+                                return detailDto;
+                            });
+                });
     }
 
 

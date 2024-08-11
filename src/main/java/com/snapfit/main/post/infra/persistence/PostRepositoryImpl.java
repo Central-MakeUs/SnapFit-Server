@@ -250,7 +250,7 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Mono<PageResult<Post>> findByMaker(int limit, int offset, int makerId) {
+    public Mono<PageResult<Post>> findByMaker(int limit, int offset, long makerId) {
         return databaseClient.sql("""
                         SELECT
                             p.id AS post_id,

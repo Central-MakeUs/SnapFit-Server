@@ -41,4 +41,9 @@ public class PostController {
     public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getAllPosts(Authentication authentication, @RequestParam("limit") int limit, @RequestParam("offset") int offset) {
         return postAdapter.findAll(limit, offset).map(ResponseEntity::ok);
     }
+
+    @GetMapping("/snafit/posts/maker")
+    public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getAllPosts(Authentication authentication, @RequestParam("limit") int limit, @RequestParam("offset") int offset, @RequestParam("userId") long userId) {
+        return postAdapter.findByMaker(limit, offset, userId).map(ResponseEntity::ok);
+    }
 }

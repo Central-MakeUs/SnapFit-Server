@@ -87,7 +87,7 @@ public class PostAdapter {
 
     //TODO 좋아요 조회 기능 구현 필요....
     public Mono<PostDetailDto> getPostDetail(Long postId, Long userId) {
-        return postService.findPostDetailById(postId)
+        return postService.findPostById(postId)
                 .flatMap(this::convertToPostDetailDto);
 
     }

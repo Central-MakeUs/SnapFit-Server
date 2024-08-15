@@ -30,7 +30,9 @@ springdoc:
 
 social:
   kakao:
-    url: "https://kapi.kakao.com/v2/user/me"
+    url: https://kapi.kakao.com/v2/user/me
+  apple:
+    url: https://appleid.apple.com/auth/keys
 
 security:
   swagger:

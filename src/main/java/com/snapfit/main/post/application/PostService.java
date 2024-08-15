@@ -8,7 +8,6 @@ import com.snapfit.main.common.domain.vibe.VibeFinder;
 import com.snapfit.main.common.dto.PageResult;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.post.application.dto.PostDetailDto;
-import com.snapfit.main.post.application.dto.PostSummaryDto;
 import com.snapfit.main.post.domain.*;
 import com.snapfit.main.post.domain.dto.Price;
 import com.snapfit.main.post.domain.exception.PostErrorCode;
@@ -46,7 +45,7 @@ public class PostService {
                 .map(this::convertToPostDetailDto);
     }
 
-    public Mono<Post> findPostDetailById(Long postId) {
+    public Mono<Post> findPostById(Long postId) {
         return postRepository.findById(postId);
     }
 

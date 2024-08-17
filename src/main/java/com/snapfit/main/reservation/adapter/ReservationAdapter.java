@@ -93,7 +93,7 @@ public class ReservationAdapter {
                             .basePrice(reservation.getMinutesPrice())
                             .person(reservation.getPerson())
                             .personPrice(reservation.getPersonPrice())
-                            .totalPrice(data.getPersonPrice() + data.getMinutesPrice())
+                            .totalPrice(data.getPersonPrice() * reservation.getPerson() + data.getMinutesPrice())
                             .reservationTime(reservation.getReservationTime())
                             .reservationLocation(reservation.getReserveLocation())
                             .build();
@@ -123,23 +123,14 @@ public class ReservationAdapter {
                         .build());
     }
 
-    private Mono<Reservation> convertToReservation(ReservationRequest reservationRequest) {
-        return Mono.just(reservationRequest)
-                .map(request -> Reservation.builder()
-                        .reserveLocation(reservationRequest.getReservationLocation())
-                        .phoneNumber(reservationRequest.getPhoneNumber())
-                        .cancelMessage(null)
-                        .makerId(reservationRequest.getMakerId())
-                        .postId(reservationRequest.getPostId())
-                        .minutes(reservationRequest.getMinutes())
-                        .email(reservationRequest.getEmail())
-                        .build());
-    }
-
     private Mono<Void> assertValidReservation(ReservationRequest reservationRequest, long userId) {
         return Mono.just(reservationRequest)
                 .flatMap(req -> postService.findPostById(req.getPostId(), userId))
                 .filter(post -> {
+                    if (!post.getPersonPrice().equals(reservationRequest.getPersonPrice())) {
+                        return false;
+                    }
+
                     for (PostPrice price : post.getPostPrices()) {
                         if (price.getPrice().equals(reservationRequest.getPrice()) && price.getMinute().equals(reservationRequest.getMinutes())) {
                             return true;

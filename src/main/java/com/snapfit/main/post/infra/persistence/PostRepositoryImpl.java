@@ -65,7 +65,7 @@ public class PostRepositoryImpl implements PostRepository {
                         LEFT JOIN post_price pp ON p.id = pp.post_id
                         LEFT JOIN like_post lp ON p.id = lp.post_id AND lp.user_id = :userId
                         WHERE p.id = :id
-                        GROUP BY p.id
+                        GROUP BY p.id, lp.id
                         """)
                 .bind("id", id)
                 .bind("userId", userId)

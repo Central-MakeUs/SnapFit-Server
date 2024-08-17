@@ -12,19 +12,19 @@ import java.util.List;
 @Data
 public class CreatePostRequest {
 
-//    @Size(min = 1, max = 2)
+    @Size(min = 1, max = 2)
     @NotNull
     private List<String> vibes;
 
-//    @Size(min = 1, max = 2)
+    @Size(min = 1, max = 2)
     @NotNull
     private List<String> locations;
 
     @Size(min = 1, max = 8)
-    @NotNull
+    @NotEmpty
     private List<String> imageNames;
 
-    @NotNull
+    @NotEmpty
     private String thumbnail;
 
     @NotNull
@@ -41,6 +41,9 @@ public class CreatePostRequest {
     @Size(min = 1)
     @NotNull
     private List<Price> prices;
+
+    @Min(0)
+    @Max(100_000_000)
     private Integer personPrice;
 
 }

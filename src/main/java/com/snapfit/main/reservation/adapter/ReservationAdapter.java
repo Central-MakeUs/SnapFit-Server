@@ -11,6 +11,7 @@ import com.snapfit.main.post.application.dto.SnapfitUserSummaryDto;
 import com.snapfit.main.post.domain.Post;
 import com.snapfit.main.post.domain.PostPrice;
 import com.snapfit.main.reservation.application.ReservationService;
+import com.snapfit.main.reservation.application.dto.ReservationCountDto;
 import com.snapfit.main.reservation.application.dto.ReservationDetailDto;
 import com.snapfit.main.reservation.application.dto.ReservationSummaryDto;
 import com.snapfit.main.reservation.domain.Reservation;
@@ -33,36 +34,41 @@ public class ReservationAdapter {
 
 
     public Mono<ReservationDetailDto> save(ReservationRequest reservationRequest, long userId) {
-        return assertValidReservation(reservationRequest)
+        return assertValidReservation(reservationRequest, userId)
                 .then(reservationService.save(reservationRequest, userId))
-                .flatMap(this::convertToDetailDto);
+                .flatMap(data -> convertToDetailDto(data, userId));
     }
 
     public Mono<ReservationDetailDto> cancel(String message, long reservationId, long userId) {
         return reservationService.cancel(message, reservationId, userId)
-                .flatMap(this::convertToDetailDto);
+                .flatMap(data -> convertToDetailDto(data, userId));
     }
 
-    public Mono<PageResult<ReservationSummaryDto>> findByMakerId(int limit, int offset, long makerId) {
+    public Mono<PageResult<ReservationSummaryDto>> findByMakerId(int limit, int offset, long makerId, long userId) {
         return reservationService.findByMakerId(limit, offset, makerId)
-                .flatMap(this::convertToReservationSummary);
+                .flatMap(data -> convertToReservationSummary(data, userId));
     }
 
     public Mono<PageResult<ReservationSummaryDto>> findByUserId(int limit, int offset, long userId) {
         return reservationService.findByUserId(limit, offset, userId)
-                .flatMap(this::convertToReservationSummary);
+                .flatMap(data -> convertToReservationSummary(data, userId));
     }
 
-    public Mono<ReservationDetailDto> findById(long id) {
+    public Mono<ReservationDetailDto> findById(long id, long userId) {
         return reservationService.findById(id)
                 .switchIfEmpty(Mono.error(new ErrorResponse(ReservationErrorCode.NOT_FOUND)))
-                .flatMap(this::convertToDetailDto);
+                .flatMap(data -> convertToDetailDto(data, userId));
     }
 
-    private Mono<PageResult<ReservationSummaryDto>> convertToReservationSummary(PageResult<Reservation> reservations) {
+    public Mono<ReservationCountDto> countByUserId(long userId) {
+        return reservationService.countByUserId(userId)
+                .map(data -> ReservationCountDto.builder().count(data).build());
+    }
+
+    private Mono<PageResult<ReservationSummaryDto>> convertToReservationSummary(PageResult<Reservation> reservations, long userId) {
         return Flux.fromIterable(reservations.getData())
                 .flatMap(reservation -> {
-                    return postService.findPostById(reservation.getPostId())
+                    return postService.findPostById(reservation.getPostId(), userId)
                             .flatMap(this::convertToPostSummary)
                             .map(postSummaryDto -> ReservationSummaryDto.builder()
                                     .id(reservation.getId())
@@ -78,7 +84,7 @@ public class ReservationAdapter {
                         .build());
     }
 
-    private Mono<ReservationDetailDto> convertToDetailDto(Reservation reservation) {
+    private Mono<ReservationDetailDto> convertToDetailDto(Reservation reservation, long userId) {
         return Mono.just(reservation)
                 .flatMap(data -> {
 
@@ -100,7 +106,7 @@ public class ReservationAdapter {
                             .flatMap(maker -> {
                                 result.setMaker(maker);
 
-                                return postService.findPostById(data.getPostId()).flatMap(this::convertToPostSummary);
+                                return postService.findPostById(data.getPostId(), userId).flatMap(this::convertToPostSummary);
                             }).flatMap(postSummaryDto -> {
                                 result.setPost(postSummaryDto);
 
@@ -130,9 +136,9 @@ public class ReservationAdapter {
                         .build());
     }
 
-    private Mono<Void> assertValidReservation(ReservationRequest reservationRequest) {
+    private Mono<Void> assertValidReservation(ReservationRequest reservationRequest, long userId) {
         return Mono.just(reservationRequest)
-                .flatMap(req -> postService.findPostById(req.getPostId()))
+                .flatMap(req -> postService.findPostById(req.getPostId(), userId))
                 .filter(post -> {
                     for (PostPrice price : post.getPostPrices()) {
                         if (price.getPrice().equals(reservationRequest.getPrice()) && price.getMinute().equals(reservationRequest.getMinutes())) {
@@ -155,6 +161,7 @@ public class ReservationAdapter {
                         .locations(post.getLocations().stream().map(Location::getAdminName).toList())
                         .thumbNail(post.getThumbnail())
                         .isStudio(post.getIsStudio())
+                        .isLike(post.getIsLike())
                         .build())
                 .flatMap(postSummaryDto -> convertToSnapfitUserSummary(post.getUserId())
                         .map(snapfitUserSummaryDto -> {

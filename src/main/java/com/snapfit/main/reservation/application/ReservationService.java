@@ -41,6 +41,10 @@ public class ReservationService {
         return reservationRepository.findByUserId(limit, offset, userId);
     }
 
+    public Mono<Integer> countByUserId(long userId) {
+        return reservationRepository.countByUserId(userId);
+    }
+
     private Reservation convertToReservation(ReservationRequest reservationRequest, long userId) {
         return Reservation.builder()
                 .postId(reservationRequest.getPostId())

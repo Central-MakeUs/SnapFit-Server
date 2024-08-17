@@ -208,4 +208,16 @@ public class ReservationRepositoryImpl implements ReservationRepository {
                         .one()
         );
     }
+
+    @Override
+    public Mono<Integer> countByUserId(long userId) {
+        return databaseClient.sql("""
+            SELECT COUNT(*)
+            FROM reservation
+            WHERE user_id = :userId
+            """)
+                .bind("userId", userId)
+                .map((row, rowMetadata) -> row.get(0, Integer.class))  // 결과를 Long 타입으로 매핑
+                .one();  // 결과를 Mono<Long>으로 반환
+    }
 }

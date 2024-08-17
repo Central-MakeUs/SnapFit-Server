@@ -10,5 +10,5 @@ public interface ReservationRepository {
     Mono<PageResult<Reservation>> findByUserId(int limit, int offset, long userId);
     Mono<PageResult<Reservation>> findByMakerId(int limit, int offset, long makerId);
     Mono<Reservation> findById(long id);
-
+    Mono<Integer> countByUserId(long userId);
 }

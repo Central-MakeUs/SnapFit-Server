@@ -6,11 +6,13 @@ import com.snapfit.main.common.exception.enums.CommonErrorCode;
 import com.snapfit.main.security.JwtToken;
 import com.snapfit.main.security.JwtTokenProvider;
 import com.snapfit.main.security.dto.RequestTokenInfo;
+import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.domain.*;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
 import com.snapfit.main.common.domain.vibe.VibeFinder;
 import com.snapfit.main.user.domain.exception.UserErrorCode;
+import com.snapfit.main.user.presentation.dto.InfoModifyDto;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +79,22 @@ public class UserService {
                         .then(Mono.just(user)))
                 // 4. 토큰 반환
                 .flatMap(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
+    }
+
+
+    @Transactional
+    public Mono<SnapfitUser> modifyUserInfo(long userId, InfoModifyDto request) {
+        return getSnapfitUser(userId)
+                .map(data -> {
+                    data.updateInfo(request.getVibes().stream().map(vibeFinder::findByVibe).toList(), request.getNickName());
+
+                    return data;
+                })
+                .flatMap(data -> snapfitUserRepository.existsByNickName(data.getNickName())
+                        .filter(isExist -> !isExist)
+                        .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.EXIST_NICKNAME)))
+                        .then(Mono.just(data)))
+                ;
     }
 
     @Transactional

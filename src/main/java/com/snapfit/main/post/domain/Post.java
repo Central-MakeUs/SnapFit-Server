@@ -66,6 +66,9 @@ public class Post {
     @Transient
     private List<PostImage> postImages = new ArrayList<>();
 
+    @Transient
+    private Boolean isLike;
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -88,5 +91,9 @@ public class Post {
 
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
+    }
+
+    public void setLike(Boolean like) {
+        isLike = like;
     }
 }

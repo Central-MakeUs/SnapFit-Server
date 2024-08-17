@@ -26,6 +26,7 @@ public class SnapfitExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Mono<ResponseEntity<ErrorCode>> handleErrorResponse(MethodArgumentNotValidException methodArgumentNotValidException) {
+        log.error("{}", methodArgumentNotValidException.getMessage());
         return Mono.just(ResponseEntity.status(CommonErrorCode.INVALID_REQUEST.getHttpStatus()).body(CommonErrorCode.INVALID_REQUEST));
     }
 

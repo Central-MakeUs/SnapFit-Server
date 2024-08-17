@@ -12,11 +12,11 @@ import java.util.List;
 @Data
 public class CreatePostRequest {
 
-    @Size(min = 1, max = 2)
+//    @Size(min = 1, max = 2)
     @NotNull
     private List<String> vibes;
 
-    @Size(min = 1, max = 2)
+//    @Size(min = 1, max = 2)
     @NotNull
     private List<String> locations;
 

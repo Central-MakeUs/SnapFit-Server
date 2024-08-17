@@ -11,9 +11,6 @@ import java.util.List;
 
 @Data
 public class CreatePostRequest {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotNull
-    private LocalDateTime reserveTime;
 
     @Size(min = 1, max = 2)
     @NotNull

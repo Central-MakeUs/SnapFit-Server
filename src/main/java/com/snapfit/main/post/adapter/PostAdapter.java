@@ -7,6 +7,7 @@ import com.snapfit.main.common.domain.vibe.VibeFinder;
 import com.snapfit.main.common.dto.PageResult;
 import com.snapfit.main.common.exception.ErrorResponse;
 import com.snapfit.main.post.application.PostService;
+import com.snapfit.main.post.application.dto.LikePostCountDto;
 import com.snapfit.main.post.application.dto.PostDetailDto;
 import com.snapfit.main.post.application.dto.PostSummaryDto;
 import com.snapfit.main.post.application.dto.SnapfitUserSummaryDto;
@@ -43,8 +44,8 @@ public class PostAdapter {
                 }));
     }
 
-    public Mono<PageResult<PostSummaryDto>> findByVibe(int limit, int offset, List<String> vibes) {
-        return postService.findByVibe(limit, offset, vibes)
+    public Mono<PageResult<PostSummaryDto>> findByVibe(int limit, int offset, List<String> vibes, long userId) {
+        return postService.findByVibe(limit, offset, vibes, userId)
                 .flatMap(postPageResult ->
                         Flux.fromIterable(postPageResult.getData())
                                 .flatMap(this::convertToPostSummary)
@@ -57,8 +58,8 @@ public class PostAdapter {
                 );
     }
 
-    public Mono<PageResult<PostSummaryDto>> findAll(int limit, int offset) {
-        return postService.find(limit, offset)
+    public Mono<PageResult<PostSummaryDto>> findAll(int limit, int offset, long userId) {
+        return postService.find(limit, offset, userId)
                 .flatMap(postPageResult ->
                         Flux.fromIterable(postPageResult.getData())
                                 .flatMap(this::convertToPostSummary)
@@ -71,8 +72,8 @@ public class PostAdapter {
                 );
     }
 
-    public Mono<PageResult<PostSummaryDto>> findByMaker(int limit, int offset, long makerId) {
-        return postService.findByMaker(limit, offset, makerId).flatMap(postPageResult ->
+    public Mono<PageResult<PostSummaryDto>> findByMaker(int limit, int offset, long makerId, long userId) {
+        return postService.findByMaker(limit, offset, makerId, userId).flatMap(postPageResult ->
                 Flux.fromIterable(postPageResult.getData())
                         .flatMap(this::convertToPostSummary)
                         .collectList()
@@ -85,11 +86,37 @@ public class PostAdapter {
     }
 
 
-    //TODO 좋아요 조회 기능 구현 필요....
-    public Mono<PostDetailDto> getPostDetail(Long postId, Long userId) {
-        return postService.findPostById(postId)
+    public Mono<PostDetailDto> getPostDetail(long postId, long userId) {
+        return postService.findPostById(postId, userId)
                 .flatMap(this::convertToPostDetailDto);
 
+    }
+
+    public Mono<Void> likePost(long userId, long postId) {
+        return postService.likePost(userId, postId);
+    }
+
+    public Mono<Void> dislikePost(long userId, long postId) {
+        return postService.dislikePost(userId, postId);
+    }
+
+    public Mono<LikePostCountDto> countLikePost(long userId) {
+        return postService.countLikePost(userId)
+                .map(data -> LikePostCountDto.builder().count(data).build());
+    }
+
+    public Mono<PageResult<PostSummaryDto>> getLikePosts(int limit, int offset, long userId) {
+        return postService.getLikePosts(limit, offset, userId)
+                .flatMap(postPageResult ->
+                        Flux.fromIterable(postPageResult.getData())
+                                .flatMap(this::convertToPostSummary)
+                                .collectList()
+                                .map(postSummaryDtos -> PageResult.<PostSummaryDto>builder()
+                                        .limit(postPageResult.getLimit())
+                                        .offset(postPageResult.getOffset())
+                                        .data(postSummaryDtos)
+                                        .build())
+                );
     }
 
     private Mono<PostDetailDto> convertToPostDetailDto(Post post) {
@@ -101,6 +128,7 @@ public class PostAdapter {
                         .desc(post.getDesc())
                         .title(post.getTitle())
                         .personPrice(post.getPersonPrice())
+                        .isLike(post.getIsLike())
                         .vibes(post.getPostVibes().stream().map(Vibe::getName).toList())
                         .locations(post.getLocations().stream().map(Location::getAdminName).toList())
                         .prices(post.getPostPrices().stream().map(postPrice -> new Price(postPrice.getMinute(), postPrice.getPrice())).toList())
@@ -125,6 +153,7 @@ public class PostAdapter {
                         .locations(post.getLocations().stream().map(Location::getAdminName).toList())
                         .thumbNail(post.getThumbnail())
                         .isStudio(post.getIsStudio())
+                        .isLike(post.getIsLike())
                         .build())
                 .flatMap(postSummaryDto -> convertToSnapfitUserSummary(post.getUserId())
                         .map(snapfitUserSummaryDto -> {

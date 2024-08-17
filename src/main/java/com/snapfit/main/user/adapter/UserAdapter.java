@@ -10,6 +10,7 @@ import com.snapfit.main.user.adapter.dto.SnapfitUserDto;
 import com.snapfit.main.user.application.UserService;
 import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
+import com.snapfit.main.user.presentation.dto.InfoModifyDto;
 import com.snapfit.main.user.presentation.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -31,6 +32,11 @@ public class UserAdapter {
 
         return userService.login(socialAccessToken, socialType)
                 .flatMap(snapfitUser -> jwtTokenProvider.createToken(new RequestTokenInfo(snapfitUser)));
+    }
+
+    public Mono<SnapfitUserDto> modifyUserInfo(long userId, InfoModifyDto request) {
+        return userService.modifyUserInfo(userId, request)
+                .map(SnapfitUserDto::new);
     }
 
     public Mono<SnapfitUserDto> getSnapfitUser(long userId) {

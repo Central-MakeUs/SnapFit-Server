@@ -41,24 +41,39 @@ public class PostService {
                         request.getImageNames().stream().map(imageHandler::parseImagePath).toList(),
                         convertToLocations(request.getLocations()),
                         convertToVibes(request.getVibes()),
-                        request.getPrices()))
+                        request.getPrices(), userId))
                 .map(this::convertToPostDetailDto);
     }
 
-    public Mono<Post> findPostById(Long postId) {
-        return postRepository.findById(postId);
+    public Mono<Post> findPostById(long postId, long userId) {
+        return postRepository.findById(postId, userId);
     }
 
-    public Mono<PageResult<Post>> findByMaker(int limit, int offset, long makerId) {
-        return postRepository.findByMaker(limit, offset, makerId);
+    public Mono<PageResult<Post>> findByMaker(int limit, int offset, long makerId, long userId) {
+        return postRepository.findByMaker(limit, offset, makerId, userId);
     }
 
-    public Mono<PageResult<Post>> findByVibe( int limit, int offset, List<String> vibes) {
-        return postRepository.findByVibes(limit, offset, vibes.stream().map(vibeFinder::findByVibe).toList());
+    public Mono<PageResult<Post>> findByVibe( int limit, int offset, List<String> vibes, long userId) {
+        return postRepository.findByVibes(limit, offset, vibes.stream().map(vibeFinder::findByVibe).toList(), userId);
     }
 
-    public Mono<PageResult<Post>> find( int limit, int offset) {
-        return postRepository.findAll(limit, offset);
+    public Mono<PageResult<Post>> find( int limit, int offset, long userId) {
+        return postRepository.findAll(limit, offset, userId);
+    }
+
+    public Mono<Void> likePost(long userId, long postId) {
+        return postRepository.likePost(userId, postId);
+    }
+    public Mono<Void> dislikePost(long userId, long postId) {
+        return postRepository.disLikePost(userId, postId);
+    }
+
+    public Mono<Integer> countLikePost(long userId) {
+        return postRepository.countLikePost(userId);
+    }
+
+    public Mono<PageResult<Post>> getLikePosts(int limit, int offset, long userId) {
+        return postRepository.findLikePost(limit, offset, userId);
     }
 
     private Post converToPost(CreatePostRequest postRequest, Long userId) {
@@ -81,6 +96,7 @@ public class PostService {
                 .images(post.getPostImages().stream().map(PostImage::getPath).toList())
                 .desc(post.getDesc())
                 .title(post.getTitle())
+                .isLike(post.getIsLike())
                 .personPrice(post.getPersonPrice())
                 .vibes(post.getPostVibes().stream().map(Vibe::getName).toList())
                 .locations(post.getLocations().stream().map(Location::getAdminName).toList())

@@ -66,4 +66,9 @@ public class SnapfitUser {
         isValid = false;
     }
 
+    public void updateInfo(List<Vibe> vibes, String nickName) {
+        this.vibes = vibes;
+        this.nickName = nickName;
+    }
+
 }

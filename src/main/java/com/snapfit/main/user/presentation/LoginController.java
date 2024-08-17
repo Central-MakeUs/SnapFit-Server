@@ -55,6 +55,11 @@ public class LoginController {
     }
 
     @GetMapping("/refresh/token")
+    @Operation(summary = "토큰 갱신", description = "토큰을 갱신한다. header에 accessToken 없이 접근이 가능하다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "성공", content = {@Content(schema = @Schema(implementation = JwtToken.class))}),
+            @ApiResponse(responseCode = "401", description = "토큰이 만료된 경우", content = {@Content(schema = @Schema(implementation = UserErrorCode.class))})
+    })
     Mono<ResponseEntity<JwtToken>> refreshToken(@RequestParam("refreshToken") String refreshToken) {
         return userAdapter.refreshToken(refreshToken).map(ResponseEntity::ok);
     }

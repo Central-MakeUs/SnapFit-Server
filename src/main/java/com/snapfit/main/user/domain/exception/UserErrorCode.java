@@ -11,6 +11,7 @@ public enum UserErrorCode implements ErrorCode {
     NOT_EXIST_USER(HttpStatus.NOT_FOUND, 11, "유저가 존재하지 않습니다."),
     EXIST_USER(HttpStatus.CONFLICT, 13, "유저가 존재합니다."),
     LEAVE_USER(HttpStatus.NOT_FOUND, 14, "탈퇴한 유저입니다."),
+    EXIST_NICKNAME(HttpStatus.CONFLICT, 15, "이미 사용 중인 닉네임입니다."),
     ;
 
 

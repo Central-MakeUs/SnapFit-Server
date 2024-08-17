@@ -19,4 +19,5 @@ public class PostSummaryDto {
     private List<String> locations;
     private int price;
     private boolean isStudio;
+    private boolean isLike;
 }

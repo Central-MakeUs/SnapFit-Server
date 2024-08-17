@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,7 +34,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "422", description = "입력한 가격이 상품의 가격이랑 다른 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))})
     })
-    public Mono<ResponseEntity<ReservationDetailDto>> createReservation(Authentication authentication, @RequestBody ReservationRequest reservationRequest) {
+    public Mono<ResponseEntity<ReservationDetailDto>> createReservation(Authentication authentication, @Valid @RequestBody ReservationRequest reservationRequest) {
         return reservationAdapter.save(reservationRequest, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 
@@ -65,13 +67,13 @@ public class ReservationController {
     }
 
     @DeleteMapping("/snapfit/reservation")
-    @Operation(summary = "예약 취소")
+    @Operation(summary = "예약 취소", description = "예약 취소 메시지는 2글자 이상, 3000자 이하")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "404", description = "예약이 존재하지 않는 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))}),
             @ApiResponse(responseCode = "403", description = "삭제 권한이 없는 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))})
     })
-    public Mono<ResponseEntity<ReservationDetailDto>> cancelReservation(Authentication authentication, @RequestParam("id") long reservationId, @RequestParam("message") String message) {
+    public Mono<ResponseEntity<ReservationDetailDto>> cancelReservation(Authentication authentication, @RequestParam("id") long reservationId, @Valid @Size(min = 2, max = 3000) @RequestParam("message") String message) {
         return reservationAdapter.cancel(message, reservationId, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 

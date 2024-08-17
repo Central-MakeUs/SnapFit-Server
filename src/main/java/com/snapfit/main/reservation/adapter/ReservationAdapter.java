@@ -131,6 +131,10 @@ public class ReservationAdapter {
                         return false;
                     }
 
+                    if (!post.getUserId().equals(reservationRequest.getMakerId())) {
+                        return false;
+                    }
+
                     for (PostPrice price : post.getPostPrices()) {
                         if (price.getPrice().equals(reservationRequest.getPrice()) && price.getMinute().equals(reservationRequest.getMinutes())) {
                             return true;

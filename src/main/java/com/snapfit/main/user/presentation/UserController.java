@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -62,7 +63,7 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "닉네임이 이미 존재하는 경우", content = {@Content(schema = @Schema(implementation = UserErrorCode.class))})
     })
     @PostMapping("/snapfit/user/info")
-    Mono<ResponseEntity<SnapfitUserDto>> changeInfo(Authentication authentication, @RequestBody InfoModifyDto request) {
+    Mono<ResponseEntity<SnapfitUserDto>> changeInfo(Authentication authentication, @Valid @RequestBody InfoModifyDto request) {
         return userAdapter.modifyUserInfo(Long.parseLong(authentication.getName()), request).map(ResponseEntity::ok);
     }
 

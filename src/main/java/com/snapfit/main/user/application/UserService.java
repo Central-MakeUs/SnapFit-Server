@@ -87,14 +87,20 @@ public class UserService {
         return getSnapfitUser(userId)
                 .map(data -> {
                     data.updateInfo(request.getVibes().stream().map(vibeFinder::findByVibe).toList(), request.getNickName());
-
                     return data;
                 })
                 .flatMap(data -> snapfitUserRepository.existsByNickName(data.getNickName())
                         .filter(isExist -> !isExist)
                         .switchIfEmpty(Mono.error(new ErrorResponse(UserErrorCode.EXIST_NICKNAME)))
                         .then(Mono.just(data)))
-                ;
+                .flatMap(snapfitUserRepository::save)
+                .flatMap(snapfitUser -> userVibeRepository.deleteByUserId(snapfitUser.getId()).then(Mono.just(snapfitUser)))
+                .flatMap(snapfitUser ->
+                    userVibeRepository.saveAll(snapfitUser.getVibes().stream().map(vibe -> UserVibe.builder()
+                                    .userId(snapfitUser.getId())
+                            .vibeId(vibe.getId())
+                            .build()).toList()).then(Mono.just(snapfitUser))
+                );
     }
 
     @Transactional

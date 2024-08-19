@@ -30,7 +30,6 @@ import java.util.List;
 public class PostAdapter {
     private final UserService userService;
     private final PostService postService;
-    private final VibeFinder vibeFinder;
 
     public Mono<PostDetailDto> createPost(CreatePostRequest request, Long userId) {
         return userService.getSnapfitUser(userId)
@@ -131,6 +130,7 @@ public class PostAdapter {
                         .isLike(post.getIsLike())
                         .vibes(post.getPostVibes().stream().map(Vibe::getName).toList())
                         .locations(post.getLocations().stream().map(Location::getAdminName).toList())
+                        .isStudio(post.getIsStudio())
                         .prices(post.getPostPrices().stream().map(postPrice -> new Price(postPrice.getMinute(), postPrice.getPrice())).toList())
                         .build())
                 .flatMap(detailDto -> {

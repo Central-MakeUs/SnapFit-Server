@@ -99,6 +99,7 @@ public class PostService {
                 .isLike(post.getIsLike())
                 .personPrice(post.getPersonPrice())
                 .vibes(post.getPostVibes().stream().map(Vibe::getName).toList())
+                .isStudio(post.getIsStudio())
                 .locations(post.getLocations().stream().map(Location::getAdminName).toList())
                 .prices(post.getPostPrices().stream().map(postPrice -> new Price(postPrice.getMinute(), postPrice.getPrice())).toList())
                 .build();

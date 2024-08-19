@@ -27,5 +27,6 @@ public class PostDetailDto {
     private List<String> locations;
     private List<Price> prices;
     private Integer personPrice;
+    private boolean isStudio;
     private boolean isLike;
 }

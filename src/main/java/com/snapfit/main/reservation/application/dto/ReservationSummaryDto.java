@@ -14,4 +14,5 @@ public class ReservationSummaryDto {
     private LocalDateTime reservationTime;
     private PostSummaryDto post;
     private Integer totalPrice;
+    private String cancelMessage;
 }

@@ -75,6 +75,7 @@ public class ReservationAdapter {
                                     .post(postSummaryDto)
                                     .reservationTime(reservation.getReservationTime())
                                     .totalPrice(reservation.getMinutesPrice() + reservation.getPersonPrice())
+                                    .cancelMessage(reservation.getCancelMessage())
                                     .build());
                 }).collectList()
                 .map(reservationSummaryDtos -> PageResult.<ReservationSummaryDto>builder()

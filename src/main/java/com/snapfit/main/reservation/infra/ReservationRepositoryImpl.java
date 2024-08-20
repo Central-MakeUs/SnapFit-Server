@@ -220,4 +220,16 @@ public class ReservationRepositoryImpl implements ReservationRepository {
                 .map((row, rowMetadata) -> row.get(0, Integer.class))  // 결과를 Long 타입으로 매핑
                 .one();  // 결과를 Mono<Long>으로 반환
     }
+
+    @Override
+    public Mono<Boolean> cancel(long id, String cancelMessage) {
+        return databaseClient.sql("""
+                UPDATE reservation SET cancel_message = :cancelMessage
+                WHERE id = :id
+                """)
+                .bind("cancelMessage", cancelMessage)
+                .bind("id", id)
+                .map((row, rowMetadata) -> true)
+                .one();
+    }
 }

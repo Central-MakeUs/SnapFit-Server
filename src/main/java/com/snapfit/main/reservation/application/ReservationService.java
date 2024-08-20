@@ -23,10 +23,10 @@ public class ReservationService {
         return findById(reservationId)
                 .filter(reservation -> reservation.getUserId().equals(userId))
                 .switchIfEmpty(Mono.error(new ErrorResponse(ReservationErrorCode.FORBIDDEN)))
-                .flatMap(reservation -> {
-                    reservation.setCancelMessage(message);
-                    return reservationRepository.save(reservation);
-                });
+                .filter(reservation -> reservation.getCancelMessage() == null)
+                .switchIfEmpty(Mono.error(new ErrorResponse(ReservationErrorCode.ALREADY_REMOVE)))
+                .flatMap(reservation -> reservationRepository.cancel(reservationId, message))
+                .then(reservationRepository.findById(reservationId));
     }
 
     public Mono<Reservation> findById(long id) {

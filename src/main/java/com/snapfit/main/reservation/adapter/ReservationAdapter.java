@@ -97,6 +97,7 @@ public class ReservationAdapter {
                             .totalPrice(data.getPersonPrice() * reservation.getPerson() + data.getMinutesPrice())
                             .reservationTime(reservation.getReservationTime())
                             .reservationLocation(reservation.getReserveLocation())
+                            .cancelMessage(data.getCancelMessage())
                             .build();
 
                     return convertToSnapfitUserSummary(reservation.getUserId())

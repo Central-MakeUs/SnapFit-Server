@@ -11,4 +11,6 @@ public interface ReservationRepository {
     Mono<PageResult<Reservation>> findByMakerId(int limit, int offset, long makerId);
     Mono<Reservation> findById(long id);
     Mono<Integer> countByUserId(long userId);
+
+    Mono<Boolean> cancel(long id, String cancelMessage);
 }

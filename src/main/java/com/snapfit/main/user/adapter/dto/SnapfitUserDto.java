@@ -3,6 +3,7 @@ package com.snapfit.main.user.adapter.dto;
 import com.snapfit.main.user.domain.SnapfitUser;
 import com.snapfit.main.common.domain.vibe.Vibe;
 import com.snapfit.main.user.domain.enums.SocialType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class SnapfitUserDto {
     private final boolean isPhotographer;
     private final boolean isNoti;
 
+    @Schema(description = "프로필 사진. null 인 경우 없음")
     private final String profile;
 
     public SnapfitUserDto(SnapfitUser snapfitUser) {

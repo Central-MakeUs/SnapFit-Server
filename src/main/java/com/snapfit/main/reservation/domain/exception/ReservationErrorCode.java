@@ -7,7 +7,8 @@ public enum ReservationErrorCode implements ErrorCode {
     //31 ~ 40
     INVALID_PRICE(HttpStatus.UNPROCESSABLE_ENTITY, 31, "올바르지 않은 가격입니다."),
     NOT_FOUND(HttpStatus.NOT_FOUND, 32, "존재하지 않는 예약입니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, 33, "권한이 없습니다.");
+    FORBIDDEN(HttpStatus.FORBIDDEN, 33, "권한이 없습니다."),
+    ALREADY_REMOVE(HttpStatus.CONFLICT, 34, "이미 취소된 예약 입니다.");
     private final HttpStatus httpStatus;
     private final int errorCode;
     private final String message;

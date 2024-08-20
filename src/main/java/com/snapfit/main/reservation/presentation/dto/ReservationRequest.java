@@ -1,5 +1,6 @@
 package com.snapfit.main.reservation.presentation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -38,6 +39,7 @@ public class ReservationRequest {
 
 
     @NotNull
+    @Schema(description = "인당 가격")
     private Integer personPrice;
 
     @Size(min = 2, max = 100)

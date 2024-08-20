@@ -71,7 +71,9 @@ public class ReservationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "404", description = "예약이 존재하지 않는 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))}),
-            @ApiResponse(responseCode = "403", description = "삭제 권한이 없는 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))})
+            @ApiResponse(responseCode = "403", description = "삭제 권한이 없는 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))}),
+            @ApiResponse(responseCode = "409", description = "이미 삭제된 경우", content = {@Content(schema = @Schema(implementation = ReservationErrorCode.class))}
+            )
     })
     public Mono<ResponseEntity<ReservationDetailDto>> cancelReservation(Authentication authentication, @RequestParam("id") long reservationId, @Valid @Size(min = 2, max = 3000) @RequestParam("message") String message) {
         return reservationAdapter.cancel(message, reservationId, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);

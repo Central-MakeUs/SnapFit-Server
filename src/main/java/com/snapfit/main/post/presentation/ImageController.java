@@ -3,6 +3,7 @@ package com.snapfit.main.post.presentation;
 import com.snapfit.main.post.domain.ImageHandler;
 import com.snapfit.main.post.domain.dto.PostFile;
 import com.snapfit.main.post.domain.enums.FileType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class ImageController {
     private final ImageHandler imageHandler;
 
     @GetMapping("/snapfit/image/paths")
-    Mono<ResponseEntity<PostFile>> getImagePaths(@RequestParam("ext") List<String> exts) {
+    Mono<ResponseEntity<PostFile>> getImagePaths(@RequestParam("ext") @Schema(description = "png, heic, heif 허용. 해당 확장자에 맞는 signed url 제공") List<String> exts) {
         return Mono.just(imageHandler.getImageSavePaths(exts.stream().map(FileType::findByExtension).toList()))
                 .map(ResponseEntity::ok);
     }

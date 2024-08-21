@@ -2,6 +2,7 @@ package com.snapfit.main.post.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.snapfit.main.post.domain.dto.Price;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class PostDetailDto {
     private SnapfitUserSummaryDto maker;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    @Schema(description = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createAt;
     private String thumbnail;
     private List<String> images;

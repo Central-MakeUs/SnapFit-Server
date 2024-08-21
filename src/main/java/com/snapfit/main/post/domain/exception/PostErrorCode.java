@@ -9,7 +9,8 @@ public enum PostErrorCode implements ErrorCode {
     //범위 21 30
     NOT_MAKER(HttpStatus.FORBIDDEN, 21, "메이커가 아닙니다."),
     NOT_EXIST_IMAGE(HttpStatus.NOT_FOUND, 22, "이미지 파일이 존재하지 않습니다."),
-    NOT_EXIST_POST(HttpStatus.NOT_FOUND, 23, "포스트가 존재하지 않습니다.")
+    NOT_EXIST_POST(HttpStatus.NOT_FOUND, 23, "포스트가 존재하지 않습니다."),
+    ALREADY_LIKE_POST(HttpStatus.CONFLICT, 24, "이미 찜했거나 찜하지 않은 상품입니다.")
     ;
 
 

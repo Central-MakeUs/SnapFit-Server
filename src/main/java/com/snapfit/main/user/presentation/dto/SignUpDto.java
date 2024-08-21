@@ -3,6 +3,7 @@ package com.snapfit.main.user.presentation.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.snapfit.main.user.domain.enums.DeviceType;
 import com.snapfit.main.user.domain.enums.SocialType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -16,7 +17,11 @@ public class SignUpDto {
     private List<String> vibes;
 
     private DeviceType deviceType;
+
+    @Schema(description = "알림에 사용될 실 기기 토큰")
     private String deviceToken;
+
+    @Schema(description = "마케팅 수신 여부")
     private boolean isMarketing;
 
     @Size(min = 2, max = 8)

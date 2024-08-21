@@ -19,6 +19,8 @@ public class SnapfitUserDto {
     private final SocialType socialType;
 
     private final boolean isMarketingReceive;
+
+    @Schema(description = "메이커 여부")
     private final boolean isPhotographer;
     private final boolean isNoti;
 

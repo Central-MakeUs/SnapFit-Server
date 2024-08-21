@@ -57,6 +57,8 @@ public class ReservationAdapter {
     public Mono<ReservationDetailDto> findById(long id, long userId) {
         return reservationService.findById(id)
                 .switchIfEmpty(Mono.error(new ErrorResponse(ReservationErrorCode.NOT_FOUND)))
+                .filter(reservation -> reservation.getMakerId().equals(userId) || reservation.getUserId().equals(userId))
+                .switchIfEmpty(Mono.error(new ErrorResponse(ReservationErrorCode.FORBIDDEN)))
                 .flatMap(data -> convertToDetailDto(data, userId));
     }
 

@@ -64,7 +64,7 @@ public class LoginController {
         return userAdapter.refreshToken(refreshToken).map(ResponseEntity::ok);
     }
 
-    @PostMapping("/sanpfit/logout")
+    @PostMapping("/snapfit/logout")
     @SecurityRequirement(name = "Bearer Authentication")
     Mono<ResponseEntity<Void>> logOut(Authentication authentication, @RequestParam("refreshToken") String refreshToken) {
 

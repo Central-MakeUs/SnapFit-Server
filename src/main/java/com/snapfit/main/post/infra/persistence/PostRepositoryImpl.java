@@ -79,7 +79,7 @@ public class PostRepositoryImpl implements PostRepository {
                         .personPrice(row.get("person_price", Integer.class))
                         .thumbnail(row.get("thumbnail", String.class))
                         .isValid(row.get("is_valid", Boolean.class))
-                        .isLike(false)
+                        .isLike(row.get("is_like", Boolean.class))
                         .postVibes(Arrays.stream((String[]) row.get("vibes"))
                                 .map(name -> new Vibe(null, name))  // `Vibe` 객체로 변환
                                 .collect(Collectors.toList()))
@@ -152,6 +152,7 @@ public class PostRepositoryImpl implements PostRepository {
                         .personPrice(row.get("person_price", Integer.class))
                         .thumbnail(row.get("thumbnail", String.class))
                         .isValid(row.get("is_valid", Boolean.class))
+                        .isLike(row.get("is_like", Boolean.class))
                         .postVibes(Arrays.stream((String[]) row.get("vibes"))
                                 .map(name -> new Vibe(null, name))  // `Vibe` 객체로 변환
                                 .collect(Collectors.toList()))
@@ -339,34 +340,41 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public Mono<Void> likePost(long userId, long postId) {
-        return databaseClient.sql("""
-            INSERT INTO like_post (user_id, post_id)
-            VALUES (:userId, :postId)
-            ON CONFLICT DO NOTHING
-            """)
-                .bind("userId", userId)
-                .bind("postId", postId)
-                .then();
+        return alreadyLike(postId, userId)
+                .filter(exist -> !exist)
+                .switchIfEmpty(Mono.error(new ErrorResponse(PostErrorCode.ALREADY_LIKE_POST)))
+                .flatMap(notExist -> databaseClient.sql("""
+                                INSERT INTO like_post (user_id, post_id)
+                                VALUES (:userId, :postId)
+                                ON CONFLICT DO NOTHING
+                                """)
+                        .bind("userId", userId)
+                        .bind("postId", postId)
+                        .then())
+                ;
     }
 
     @Override
     public Mono<Void> disLikePost(long userId, long postId) {
-        return databaseClient.sql("""
-            DELETE FROM like_post
-            WHERE user_id = :userId AND post_id = :postId
-            """)
+        return alreadyLike(postId, userId)
+                .filter(exist -> exist)
+                .switchIfEmpty(Mono.error(new ErrorResponse(PostErrorCode.ALREADY_LIKE_POST)))
+                .flatMap(exist ->databaseClient.sql("""
+                        DELETE FROM like_post
+                        WHERE user_id = :userId AND post_id = :postId
+                        """)
                 .bind("userId", userId)
                 .bind("postId", postId)
-                .then();
+                .then());
     }
 
     @Override
     public Mono<Integer> countLikePost(long userId) {
         return databaseClient.sql("""
-                SELECT count(*)
-                FROM like_post
-                WHERE user_id = :userId
-                """)
+                        SELECT count(*)
+                        FROM like_post
+                        WHERE user_id = :userId
+                        """)
                 .bind("userId", userId)
                 .map((row, rowMetadata) -> row.get(0, Integer.class))
                 .one();
@@ -468,7 +476,7 @@ public class PostRepositoryImpl implements PostRepository {
                 .then(Mono.just(post));
     }
 
-    private Mono<Void> saveRelatedEntities(Long postId, List<String> imagePaths, List<Location> locations, List<Vibe> vibes, List<Price> prices) {
+    private Mono<Void> saveRelatedEntities(long postId, List<String> imagePaths, List<Location> locations, List<Vibe> vibes, List<Price> prices) {
         return Flux.concat(
                 savePostImages(postId, imagePaths),
                 savePostLocations(postId, locations),
@@ -477,7 +485,7 @@ public class PostRepositoryImpl implements PostRepository {
         ).then();
     }
 
-    private Flux<Void> savePostImages(Long postId, List<String> imagePaths) {
+    private Flux<Void> savePostImages(long postId, List<String> imagePaths) {
         return Flux.fromIterable(imagePaths)
                 .flatMap(path -> databaseClient.sql("INSERT INTO post_image (post_id, path) VALUES (:postId, :path)")
                         .bind("postId", postId)
@@ -487,7 +495,7 @@ public class PostRepositoryImpl implements PostRepository {
                         .then());
     }
 
-    private Flux<Void> savePostLocations(Long postId, List<Location> locations) {
+    private Flux<Void> savePostLocations(long postId, List<Location> locations) {
         return Flux.fromIterable(locations)
                 .flatMap(location -> databaseClient.sql("INSERT INTO post_location (post_id, location_id) VALUES (:postId, :locationId)")
                         .bind("postId", postId)
@@ -497,7 +505,7 @@ public class PostRepositoryImpl implements PostRepository {
                         .then());
     }
 
-    private Flux<Void> savePostVibes(Long postId, List<Vibe> vibes) {
+    private Flux<Void> savePostVibes(long postId, List<Vibe> vibes) {
         return Flux.fromIterable(vibes)
                 .flatMap(vibe -> databaseClient.sql("INSERT INTO post_vibe (post_id, vibe_id) VALUES (:postId, :vibeId)")
                         .bind("postId", postId)
@@ -507,7 +515,7 @@ public class PostRepositoryImpl implements PostRepository {
                         .then());
     }
 
-    private Flux<Void> savePostPrice(Long postId, List<Price> prices) {
+    private Flux<Void> savePostPrice(long postId, List<Price> prices) {
         return Flux.fromIterable(prices)
                 .flatMap(price -> databaseClient.sql("INSERT INTO post_price (post_id, minutes, price) VALUES (:postId, :min, :price)")
                         .bind("postId", postId)
@@ -516,6 +524,16 @@ public class PostRepositoryImpl implements PostRepository {
                         .fetch()
                         .rowsUpdated()
                         .then());
+    }
+
+    private Mono<Boolean> alreadyLike(long postId, long userId) {
+        return databaseClient.sql("""
+                        SELECT EXISTS(SELECT 1 from like_post WHERE post_id = :postId and user_id = :userId limit 1)
+                        """)
+                .bind("postId", postId)
+                .bind("userId", userId)
+                .map(((row, rowMetadata) -> row.get(0, Boolean.class)))
+                .one();
     }
 
 }

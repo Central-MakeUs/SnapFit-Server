@@ -14,6 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +46,12 @@ public class ReservationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
     })
-    public Mono<ResponseEntity<PageResult<ReservationSummaryDto>>> findByMaker(Authentication authentication, @RequestParam("limit") int limit, @RequestParam("offset") int offset, @RequestParam("makerId") long makerId) {
+    public Mono<ResponseEntity<PageResult<ReservationSummaryDto>>> findByMaker(Authentication authentication,
+                                                                               @Schema(description = "한 페이지에 들어가는 개수.(1~100)") @Valid @Positive @Max(100) @RequestParam("limit")
+                                                                               int limit,
+                                                                               @Schema(description = "페이지 수.(0~)") @Valid @PositiveOrZero @RequestParam("offset")
+                                                                               int offset,
+                                                                               @RequestParam("makerId") long makerId) {
         return reservationAdapter.findByMakerId(limit, offset, makerId, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 
@@ -52,7 +60,11 @@ public class ReservationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
     })
-    public Mono<ResponseEntity<PageResult<ReservationSummaryDto>>> findByUser(Authentication authentication, @RequestParam("limit") int limit, @RequestParam("offset") int offset) {
+    public Mono<ResponseEntity<PageResult<ReservationSummaryDto>>> findByUser(Authentication authentication,
+                                                                              @Schema(description = "한 페이지에 들어가는 개수.(1~100)") @Valid @Positive @Max(100) @RequestParam("limit")
+                                                                              int limit,
+                                                                              @Schema(description = "페이지 수.(0~)") @Valid @PositiveOrZero @RequestParam("offset")
+                                                                              int offset) {
         return reservationAdapter.findByUserId(limit, offset, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 

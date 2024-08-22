@@ -90,7 +90,7 @@ public class PostController {
     public Mono<ResponseEntity<PageResult<PostSummaryDto>>> getAllPosts(Authentication authentication,
                                                                         @Schema(description = "한 페이지에 들어가는 개수.(1~100)") @Valid @Positive @Max(100) @RequestParam("limit")
                                                                         int limit,
-                                                                        @Schema(description = "한 페이지에 들어가는 개수.(1~100)") @Valid @Positive @Max(100) @RequestParam("limit")
+                                                                        @Schema(description = "페이지 수.(0~)") @Valid @Positive @Max(100) @RequestParam("offset")
                                                                         int offset,
                                                                         @RequestParam("userId") long userId) {
         return postAdapter.findByMaker(limit, offset, userId, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);

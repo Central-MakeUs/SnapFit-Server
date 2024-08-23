@@ -31,7 +31,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
                 .filter(authHeader -> {
                     return authHeader.startsWith("Bearer ");
                 })
-                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_REQUEST)))
+                .switchIfEmpty(Mono.empty())
                 .flatMap(authHeader -> {
                     String authToken = authHeader.substring(7);
                     Authentication auth = new UsernamePasswordAuthenticationToken(authToken, authToken);

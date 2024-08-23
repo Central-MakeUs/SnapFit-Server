@@ -82,7 +82,7 @@ public class PostController {
         return postAdapter.findAll(limit, offset, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 
-    @GetMapping("/snafit/posts/maker")
+    @GetMapping("/snapfit/posts/maker")
     @Operation(summary = "메이커의 상품 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),
@@ -125,7 +125,7 @@ public class PostController {
         return postAdapter.countLikePost(Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 
-    @GetMapping("/snafit/post/like")
+    @GetMapping("/snapfit/post/like")
     @Operation(summary = "찜한 상품 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공"),

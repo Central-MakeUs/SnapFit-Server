@@ -50,9 +50,8 @@ public class ReservationController {
                                                                                @Schema(description = "한 페이지에 들어가는 개수.(1~100)") @Valid @Positive @Max(100) @RequestParam("limit")
                                                                                int limit,
                                                                                @Schema(description = "페이지 수.(0~)") @Valid @PositiveOrZero @RequestParam("offset")
-                                                                               int offset,
-                                                                               @RequestParam("makerId") long makerId) {
-        return reservationAdapter.findByMakerId(limit, offset, makerId, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
+                                                                               int offset) {
+        return reservationAdapter.findByMakerId(limit, offset, Long.parseLong(authentication.getName())).map(ResponseEntity::ok);
     }
 
     @GetMapping("/snapfit/reservation/user")

@@ -18,6 +18,7 @@ import com.snapfit.main.reservation.domain.Reservation;
 import com.snapfit.main.reservation.domain.exception.ReservationErrorCode;
 import com.snapfit.main.reservation.presentation.dto.ReservationRequest;
 import com.snapfit.main.user.application.UserService;
+import com.snapfit.main.user.domain.SnapfitUser;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,8 +45,11 @@ public class ReservationAdapter {
                 .flatMap(data -> convertToDetailDto(data, userId));
     }
 
-    public Mono<PageResult<ReservationSummaryDto>> findByMakerId(int limit, int offset, long makerId, long userId) {
-        return reservationService.findByMakerId(limit, offset, makerId)
+    public Mono<PageResult<ReservationSummaryDto>> findByMakerId(int limit, int offset, long userId) {
+        return userService.getSnapfitUser(userId)
+                .filter(SnapfitUser::isPhotographer)
+                .switchIfEmpty(Mono.error(new ErrorResponse(ReservationErrorCode.FORBIDDEN)))
+                .flatMap(user -> reservationService.findByMakerId(limit, offset, userId))
                 .flatMap(data -> convertToReservationSummary(data, userId));
     }
 
@@ -100,6 +104,8 @@ public class ReservationAdapter {
                             .reservationTime(reservation.getReservationTime())
                             .reservationLocation(reservation.getReserveLocation())
                             .cancelMessage(data.getCancelMessage())
+                            .email(reservation.getEmail())
+                            .phoneNumber(reservation.getPhoneNumber())
                             .build();
 
                     return convertToSnapfitUserSummary(reservation.getUserId())

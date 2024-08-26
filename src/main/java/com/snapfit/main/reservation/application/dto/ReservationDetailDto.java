@@ -37,4 +37,7 @@ public class ReservationDetailDto {
     private Integer totalPrice;
     @Schema(description = "null 인 경우 취소되지 않은 데이터")
     private String cancelMessage;
+
+    private String email;
+    private String phoneNumber;
 }

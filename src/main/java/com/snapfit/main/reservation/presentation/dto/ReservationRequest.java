@@ -42,7 +42,7 @@ public class ReservationRequest {
     @Schema(description = "인당 가격")
     private Integer personPrice;
 
-    @Size(min = 2, max = 100)
+    @Size(min = 1, max = 100)
     @NotEmpty
     private String reservationLocation;
 

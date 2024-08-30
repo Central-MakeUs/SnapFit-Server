@@ -49,7 +49,7 @@ public class UserAdapter {
     }
 
     public Mono<JwtToken> refreshToken(String refreshToken) {
-        return jwtTokenProvider.refreshToken(refreshToken);
+        return jwtTokenProvider.refreshToken(refreshToken, jwtTokenProvider.getUserId(refreshToken));
     }
 
     public Mono<List<Vibe>> findAllVibes() {

@@ -41,23 +41,26 @@ public class JwtTokenProvider {
         String accessToken = createToken(requestTokenInfo, accessTokenExpireTime);
         String refreshToken = createToken(requestTokenInfo, refreshTokenExpireTime);
 
-        return saveRefreshToken(requestTokenInfo, refreshToken)
-                .then(Mono.just(JwtToken.builder()
+//        return saveRefreshToken(requestTokenInfo, refreshToken)
+//                .then(Mono.just(JwtToken.builder()
+//                        .accessToken(accessToken)
+//                        .refreshToken(refreshToken)
+//                        .build()));
+
+        return Mono.just(JwtToken.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
-                        .build()));
-
-
+                        .build());
     }
 
-    public Mono<JwtToken> refreshToken(String refreshToken) {
+    public Mono<JwtToken> refreshToken(String refreshToken, long userId) {
 
         return Mono.just(validateToken(refreshToken))
                 .filter(valid -> valid)
                 .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
-                .flatMap(valid -> refreshTokenRepository.findByRefreshToken(refreshToken))
-                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
-                .flatMap(refreshTokenInfo -> createToken(new RequestTokenInfo(refreshTokenInfo.getUserId())));
+//                .flatMap(valid -> refreshTokenRepository.findByRefreshToken(refreshToken))
+//                .switchIfEmpty(Mono.error(new ErrorResponse(CommonErrorCode.INVALID_TOKEN)))
+                .flatMap(refreshTokenInfo -> createToken(new RequestTokenInfo(userId)));
     }
 
     public boolean validateToken(String token) {
@@ -80,11 +83,12 @@ public class JwtTokenProvider {
     }
 
     public Mono<Void> logOut(Long userId, String refreshToken) {
-        if (!validateToken(refreshToken) || !getUserId(refreshToken).equals(userId)) {
-            return Mono.error(new ErrorResponse(CommonErrorCode.INVALID_AUTH));
-        }
+//        if (!validateToken(refreshToken) || !getUserId(refreshToken).equals(userId)) {
+//            return Mono.error(new ErrorResponse(CommonErrorCode.INVALID_AUTH));
+//        }
 
-        return refreshTokenRepository.deleteByRefreshToken(refreshToken);
+//        return refreshTokenRepository.deleteByRefreshToken(refreshToken);
+        return Mono.empty();
     }
 
     public Long getUserId(String token) {

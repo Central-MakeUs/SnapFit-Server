@@ -19,4 +19,6 @@ public interface PostRepository {
     Mono<Void> disLikePost(long userId, long postId);
     Mono<Integer> countLikePost(long userId);
     Mono<PageResult<Post>> findLikePost(int limit, int offset, long userId);
+
+    Mono<Void> leaveMaker(long makerId);
 }

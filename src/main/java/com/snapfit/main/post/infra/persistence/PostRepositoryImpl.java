@@ -456,6 +456,16 @@ public class PostRepositoryImpl implements PostRepository {
                         .build());
     }
 
+    @Override
+    public Mono<Void> leaveMaker(long makerId) {
+        return databaseClient.sql("""
+                UPDATE post SET is_valid = false
+                WHERE user_id = :makerId
+                """)
+                .bind("makerId", makerId)
+                .then();
+    }
+
 
     private Mono<Post> savePost(Post post) {
         return databaseClient.sql("INSERT INTO post (user_id, is_studio, title, description, person_price, thumbnail, is_valid) " +

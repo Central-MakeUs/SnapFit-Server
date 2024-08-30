@@ -76,6 +76,10 @@ public class PostService {
         return postRepository.findLikePost(limit, offset, userId);
     }
 
+    public Mono<Void> leaveMaker(long makerId) {
+        return postRepository.leaveMaker(makerId);
+    }
+
     private Post converToPost(CreatePostRequest postRequest, Long userId) {
         return Post.builder()
                 .userId(userId)

@@ -33,7 +33,6 @@ public class PostService {
                 .flatMap(req -> {
                     validImage(req.getImageNames());
                     validImage(List.of(req.getThumbnail()));
-
                     return Mono.just(req);
                 })
                 .map(req -> converToPost(req, userId))

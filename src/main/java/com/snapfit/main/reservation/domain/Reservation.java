@@ -1,23 +1,16 @@
 package com.snapfit.main.reservation.domain;
 
 
-import com.snapfit.main.common.domain.location.Location;
-import com.snapfit.main.common.domain.vibe.Vibe;
-import com.snapfit.main.post.domain.PostImage;
-import com.snapfit.main.post.domain.PostPrice;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Table("reservation")
 @Builder

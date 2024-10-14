@@ -7,7 +7,8 @@ public enum CommonErrorCode implements ErrorCode {
     //0~9
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, 1, "올바르지 않은 요청입니다."),
     INVALID_AUTH(HttpStatus.UNAUTHORIZED, 2, "권한이 없습니다."),
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED,3, "토큰이 만료되었거나, 올바르지 않습니다.")
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED,3, "토큰이 만료되었거나, 올바르지 않습니다."),
+    VALID_RESERVATION_EXISTS(HttpStatus.UNAUTHORIZED,4, "기예약 건이 존재하여 탈퇴할 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;

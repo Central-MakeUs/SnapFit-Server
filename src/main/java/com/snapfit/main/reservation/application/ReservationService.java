@@ -37,6 +37,13 @@ public class ReservationService {
         return reservationRepository.findByMakerId(limit, offset, makerId);
     }
 
+    public Mono<Boolean> findMakerPendingReservation(long makerId) {
+        return reservationRepository.findMakerPendingReservation(makerId);
+    }
+    public Mono<Boolean> findUserPendingReservation(long makerId) {
+        return reservationRepository.findUserPendingReservation(makerId);
+    }
+
     public Mono<PageResult<Reservation>> findByUserId(int limit, int offset, long userId) {
         return reservationRepository.findByUserId(limit, offset, userId);
     }
